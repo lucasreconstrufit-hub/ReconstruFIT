@@ -20,48 +20,134 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   --shadow:rgba(0,0,0,.10);
 }
 [data-theme="dark"]{
-  --bg:#1a1a1a;--bg2:#2a2a2a;--bg3:#141414;
-  --text:#f0f0f0;--text2:#d0d0d0;--text3:#999;--text4:#777;--text5:#555;
-  --border:#3a3a3a;--border2:#333;--border3:#2a2a2a;
-  --card:#262626;--card2:#222;
-  --input-bg:#2a2a2a;--input-border:#444;
-  --modal-bg:#262626;--modal-cancel:#333;--modal-cancel-text:#bbb;
-  --src-legend-bg:#2a2a2a;
-  --shadow:rgba(0,0,0,.5);
+  --bg:#111111;--bg2:#1e1e1e;--bg3:#0a0a0a;
+  --text:#ffffff;--text2:#e0e0e0;--text3:#aaaaaa;--text4:#777777;--text5:#555555;
+  --border:#3a3a3a;--border2:#404040;--border3:#2a2a2a;
+  --card:#2a2a2a;--card2:#242424;
+  --input-bg:#222222;--input-border:#505050;
+  --modal-bg:#1e1e1e;--modal-cancel:#2a2a2a;--modal-cancel-text:#cccccc;
+  --src-legend-bg:#1e1e1e;
+  --shadow:rgba(0,0,0,.6);
 }
-[data-theme="dark"] .step-food-name,
-[data-theme="dark"] .step-food-meta,
-[data-theme="dark"] .compare-title,
-[data-theme="dark"] .cr-val,
-[data-theme="dark"] .cr-macro-v,
-[data-theme="dark"] .hfood,
-[data-theme="dark"] .hswap,
+
+/* ── DARK MODE CONTRASTE ─────────────────────────────────────────── */
+[data-theme="dark"] *{-webkit-font-smoothing:antialiased}
+
+/* Textos principais */
 [data-theme="dark"] .fname,
+[data-theme="dark"] .step-food-name,
 [data-theme="dark"] .sc-name,
+[data-theme="dark"] .hfood,
 [data-theme="dark"] .swp-title,
 [data-theme="dark"] .qmv,
 [data-theme="dark"] .modal-title,
-[data-theme="dark"] .bc-result-name{color:#f0f0f0!important}
-[data-theme="dark"] .step-card,
-[data-theme="dark"] .compare-box,
-[data-theme="dark"] .compare-result-card,
-[data-theme="dark"] .hcard,
-[data-theme="dark"] .fcard,
-[data-theme="dark"] .scard{background:var(--card)!important;border-color:var(--border2)!important}
-[data-theme="dark"] .fcard.sel,
-[data-theme="dark"] .scard.picked{background:#3a1010!important;border-color:#C40A00!important}
-[data-theme="dark"] .banner{background:#3a1010!important;border-color:#7a3030!important}
-[data-theme="dark"] .qbox{background:var(--card)!important}
-[data-theme="dark"] .stepper{border-color:var(--border)!important}
-[data-theme="dark"] .sinput{background:var(--input-bg)!important;color:var(--text)!important;border-color:var(--border2)!important}
-[data-theme="dark"] .sbtn{background:var(--bg2)!important;color:var(--text2)!important}
-[data-theme="dark"] .sbox{background:var(--input-bg)!important;border-color:var(--input-border)!important}
-[data-theme="dark"] .sbox input{color:var(--text)!important}
-[data-theme="dark"] .modal{background:var(--modal-bg)!important}
-[data-theme="dark"] .scanner-wrap{background:#111!important}
-[data-theme="dark"] .photo-area{border-color:var(--border)!important}
-[data-theme="dark"] .step-change-btn{border-color:#7a3030!important;color:#ff6b6b!important}
-[data-theme="dark"] .swap-arrow-icon{background:#3a1010!important;border-color:#7a3030!important}
+[data-theme="dark"] .bc-result-name,
+[data-theme="dark"] .brand-reconstru{color:#ffffff!important}
+
+[data-theme="dark"] .step-food-meta,
+[data-theme="dark"] .fmeta,
+[data-theme="dark"] .hswap,
+[data-theme="dark"] .swp-sub,
+[data-theme="dark"] .hdetail,
+[data-theme="dark"] .qunit,
+[data-theme="dark"] .qkcal-lbl,
+[data-theme="dark"] .modal-sub,
+[data-theme="dark"] .bc-result-meta{color:#aaaaaa!important}
+
+/* Cards com borda visível */
+[data-theme="dark"] .step-card{background:#2a2a2a!important;border:1px solid #505050!important}
+[data-theme="dark"] .fcard{background:#242424!important;border:1px solid #404040!important}
+[data-theme="dark"] .fcard:hover{border-color:#666!important}
+[data-theme="dark"] .fcard.sel{background:#2d1515!important;border:1.5px solid #C40A00!important}
+[data-theme="dark"] .scard{background:#242424!important;border:1px solid #404040!important}
+[data-theme="dark"] .scard.picked{background:#2d1515!important;border-color:#C40A00!important}
+[data-theme="dark"] .hcard{background:#242424!important;border:1px solid #383838!important}
+[data-theme="dark"] .compare-result-card{background:#242424!important;border:1px solid #404040!important}
+[data-theme="dark"] .compare-box{background:#1a1a1a!important}
+
+/* QTY box */
+[data-theme="dark"] .qbox{background:#242424!important;border-color:#C40A00!important}
+[data-theme="dark"] .qmacros{border-top:1px solid #383838!important}
+[data-theme="dark"] .qmv{color:#ffffff!important}
+[data-theme="dark"] .qmn{color:#888!important}
+
+/* Stepper */
+[data-theme="dark"] .stepper{border:1px solid #505050!important}
+[data-theme="dark"] .sbtn{background:#333!important;color:#e0e0e0!important}
+[data-theme="dark"] .sbtn:hover{background:#C40A00!important;color:#fff!important}
+[data-theme="dark"] .sinput{background:#222!important;color:#fff!important;border-left:1px solid #505050!important;border-right:1px solid #505050!important}
+
+/* Search inputs */
+[data-theme="dark"] .sbox{background:#222!important;border:1px solid #505050!important}
+[data-theme="dark"] .sbox input{color:#fff!important;background:transparent!important}
+[data-theme="dark"] .sbox input::placeholder{color:#666!important}
+[data-theme="dark"] .sbox:focus-within{border-color:#C40A00!important}
+[data-theme="dark"] #subInput{color:#fff!important}
+
+/* Macros grid no compare */
+[data-theme="dark"] #compareResult [style*="background:var(--bg2)"]{background:#333!important}
+
+/* Banner do alimento selecionado */
+[data-theme="dark"] .banner{background:#2d1515!important;border:1px solid #7a2020!important}
+[data-theme="dark"] .step-change-btn{border-color:#7a2020!important;color:#ff8080!important;background:transparent!important}
+
+/* Seta */
+[data-theme="dark"] .swap-arrow-icon{background:#2d1515!important;border:1px solid #7a2020!important}
+[data-theme="dark"] .swap-arrow-line{background:#383838!important}
+
+/* Tabs */
+[data-theme="dark"] .tab{background:#1a1a1a!important;color:#888!important;border-color:#383838!important}
+[data-theme="dark"] .tab.on{background:#C40A00!important;color:#fff!important}
+[data-theme="dark"] .tabs{border-color:#383838!important}
+
+/* Filters / badges */
+[data-theme="dark"] .ftag{background:#222!important;border-color:#404040!important;color:#aaa!important}
+[data-theme="dark"] .ftag.on{background:#C40A00!important;border-color:#C40A00!important;color:#fff!important}
+[data-theme="dark"] .dbadge.ds{background:#2d1515!important;color:#ff8080!important}
+[data-theme="dark"] .dbadge.dl{background:#0d2035!important;color:#6ab0ff!important}
+[data-theme="dark"] .dbadge.dm{background:#2a2a2a!important;color:#aaa!important}
+[data-theme="dark"] .mchip{background:#333!important;color:#ccc!important}
+
+/* Modais */
+[data-theme="dark"] .modal{background:#1e1e1e!important}
+[data-theme="dark"] .modal-title{color:#fff!important}
+[data-theme="dark"] .modal-cancel{background:#2a2a2a!important;color:#ccc!important}
+[data-theme="dark"] .bc-result{background:#242424!important;border-color:#404040!important}
+[data-theme="dark"] .bc-status.loading{background:#222!important;color:#aaa!important}
+[data-theme="dark"] .photo-area{border-color:#505050!important;background:#222!important}
+[data-theme="dark"] .photo-area:hover{border-color:#C40A00!important;background:#2d1515!important}
+[data-theme="dark"] .photo-result-item{background:#242424!important;border-color:#404040!important}
+
+/* abtn (barras/foto) */
+[data-theme="dark"] .abtn{background:#2a2a2a!important;border:1px solid #505050!important;color:#e0e0e0!important}
+[data-theme="dark"] .abtn:hover{border-color:#C40A00!important;color:#C40A00!important;background:#2d1515!important}
+
+/* Theme toggle btn */
+[data-theme="dark"] #themeToggle{border-color:#505050!important;color:#aaa!important}
+
+/* Search status */
+[data-theme="dark"] .search-status.taco{background:#0d2035!important;color:#6ab0ff!important}
+[data-theme="dark"] .search-status.off{background:#2d1515!important;color:#ff8080!important}
+
+/* Dividers */
+[data-theme="dark"] .divider{border-color:#383838!important}
+[data-theme="dark"] .cr-divider{border-color:#383838!important}
+
+/* Ver todos btn */
+[data-theme="dark"] #flist button{border-color:#505050!important;color:#aaa!important;background:#2a2a2a!important}
+
+/* slabel */
+[data-theme="dark"] .slabel{color:#666!important}
+[data-theme="dark"] .step-label{color:#666!important}
+
+/* hist empty */
+[data-theme="dark"] .hist-empty{color:#555!important}
+[data-theme="dark"] .hist-clear{color:#ff8080!important}
+[data-theme="dark"] .hdel:hover{color:#ff8080!important}
+[data-theme="dark"] .harrow{color:#ff6b6b!important}
+[data-theme="dark"] .hswap{color:#ff8080!important}
+[data-theme="dark"] .hbadge-off{background:#2d1515!important;color:#ff8080!important}
+[data-theme="dark"] .hbadge-mac{background:#1a2d1a!important;color:#6abf6a!important}
 .app{max-width:440px;width:100%;background:var(--bg);border-radius:20px;padding:1.5rem;box-shadow:0 2px 24px var(--shadow);align-self:flex-start;transition:background .2s,color .2s}
 
 /* HEADER */
@@ -217,6 +303,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .photo-result-name{font-size:14px;font-weight:600;color:var(--text)}
 .photo-result-meta{font-size:12px;color:var(--text3);margin-top:2px}
 .photo-retry{background:none;border:1px solid var(--border);border-radius:10px;padding:8px 16px;font-size:13px;color:var(--text3);cursor:pointer;font-family:inherit;width:100%;margin-bottom:.5rem}
+.photo-retry:disabled{opacity:.5;cursor:not-allowed}
+.countdown-wrap{margin-bottom:.5rem}
+.countdown-bar-bg{background:var(--border2);border-radius:8px;height:6px;overflow:hidden;margin:.5rem 0}
+.countdown-bar{background:#C40A00;height:6px;border-radius:8px;transition:width .1s linear;width:100%}
+.countdown-txt{font-size:13px;color:var(--text3);text-align:center;margin-bottom:6px}
 </style>
 <meta name="theme-color" content="#C40A00"/>
 <meta name="mobile-web-app-capable" content="yes"/>
@@ -1151,7 +1242,7 @@ async function handlePhoto(input){
     st.className="bc-status loading";st.textContent="🤖 Identificando com Gemini...";
     results.innerHTML="";
     try{
-      const url=`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+      const url=`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
       const r=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
         contents:[{parts:[
           {inline_data:{mime_type:mimeType,data:base64Data}},
@@ -1209,11 +1300,69 @@ Até 3 alimentos. Exemplos: "frango peito grelhado", "banana prata", "arroz bran
       }).join("")+`<button class="photo-retry" onclick="retryPhoto()">📷 Outra foto</button>`;
     }catch(e){
       console.error("Gemini:",e);
-      st.className="bc-status error";st.textContent="Erro: "+e.message;
-      results.innerHTML=`<button class="photo-retry" onclick="retryPhoto()">📷 Tentar novamente</button>`;
+      // Mensagem amigável para erros comuns
+      let msg=e.message||"";
+      if(msg.includes("quota")||msg.includes("RESOURCE_EXHAUSTED")){
+        // Extrair segundos de espera da resposta da API
+        const waitMatch=msg.match(/retry in ([\d.]+)s/i);
+        const waitSec=waitMatch?Math.ceil(parseFloat(waitMatch[1])):30;
+        st.className="bc-status error";
+        st.textContent="⏳ Muitas fotos seguidas! Aguardando para tentar novamente...";
+        startPhotoCountdown(waitSec,results);
+      } else if(msg.includes("403")||msg.includes("API_KEY_INVALID")){
+        localStorage.removeItem("rf_gemini_key");
+        st.className="bc-status error";
+        st.textContent="🔑 Chave inválida. Configure novamente.";
+        results.innerHTML=`<button class="photo-retry" onclick="openPhotoModal('${photoTarget}')">🔑 Configurar chave</button>`;
+      } else if(msg.includes("SAFETY")){
+        st.className="bc-status error";
+        st.textContent="⚠️ Imagem não processada. Tente outra foto com melhor iluminação.";
+        results.innerHTML=`<button class="photo-retry" onclick="retryPhoto()">📷 Tentar novamente</button>`;
+      } else {
+        st.className="bc-status error";
+        st.textContent="Erro de conexão. Verifique sua internet e tente novamente.";
+        results.innerHTML=`<button class="photo-retry" onclick="retryPhoto()">📷 Tentar novamente</button>`;
+      }
     }
   };
   reader.readAsDataURL(file);
+}
+
+function startPhotoCountdown(seconds, resultsEl){
+  let remaining = seconds;
+  resultsEl.innerHTML = `
+    <div class="countdown-wrap">
+      <div class="countdown-txt" id="cdTxt">Liberando em <strong>${remaining}s</strong>...</div>
+      <div class="countdown-bar-bg">
+        <div class="countdown-bar" id="cdBar" style="width:100%"></div>
+      </div>
+      <button class="photo-retry" id="cdBtn" onclick="retryPhoto()" disabled>
+        📷 Tentar novamente
+      </button>
+    </div>`;
+
+  const total = seconds;
+  const interval = setInterval(()=>{
+    remaining--;
+    const cdTxt = document.getElementById("cdTxt");
+    const cdBar = document.getElementById("cdBar");
+    const cdBtn = document.getElementById("cdBtn");
+    if(!cdTxt){ clearInterval(interval); return; }
+
+    if(remaining <= 0){
+      clearInterval(interval);
+      cdTxt.innerHTML = "✓ Pronto! Pode tirar a foto agora.";
+      cdTxt.style.color = "#0a6640";
+      if(cdBar) cdBar.style.background = "#0a6640";
+      if(cdBtn){
+        cdBtn.disabled = false;
+        cdBtn.textContent = "📷 Tentar novamente";
+      }
+    } else {
+      cdTxt.innerHTML = `Liberando em <strong>${remaining}s</strong>...`;
+      if(cdBar) cdBar.style.width = ((remaining/total)*100)+"%";
+    }
+  }, 1000);
 }
 
 function retryPhoto(){
