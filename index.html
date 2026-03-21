@@ -775,7 +775,7 @@ async function searchOFF(query){
 }
 
 // ── SEARCH ────────────────────────────────────────────────────────────────
-function searchTACO(q){return TACO.filter(f=>f.t.includes(goal)&&f.name.toLowerCase().includes(q.toLowerCase()));}
+function searchTACO(q){return TACO.filter(f=>f.name.toLowerCase().includes(q.toLowerCase()));}
 function setSearchStatus(type,text){const el=document.getElementById("searchStatus");el.className="search-status "+type;el.textContent=text;}
 
 async function onSearch(val){
