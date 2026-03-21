@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>reconstruFIT</title>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg3);min-height:100vh;display:flex;justify-content:center;padding:1rem;transition:background .2s}
+:root{
+  --brand:#C40A00;--r:13px;
+  --bg:#fff;--bg2:#f7f7f7;--bg3:#f2f2f2;
+  --text:#000;--text2:#555;--text3:#999;--text4:#bbb;--text5:#ccc;
+  --border:#e0e0e0;--border2:#eee;--border3:#f0f0f0;
+  --card:#fff;--card2:#fafafa;
+  --input-bg:#fff;--input-border:#ddd;
+  --modal-bg:#fff;--modal-cancel:#f5f5f5;--modal-cancel-text:#666;
+  --src-legend-bg:#f7f7f7;
+  --shadow:rgba(0,0,0,.10);
+}
+[data-theme="dark"]{
+  --bg:#1a1a1a;--bg2:#242424;--bg3:#141414;
+  --text:#f0f0f0;--text2:#bbb;--text3:#888;--text4:#666;--text5:#555;
+  --border:#333;--border2:#2a2a2a;--border3:#222;
+  --card:#222;--card2:#1e1e1e;
+  --input-bg:#2a2a2a;--input-border:#3a3a3a;
+  --modal-bg:#242424;--modal-cancel:#333;--modal-cancel-text:#aaa;
+  --src-legend-bg:#2a2a2a;
+  --shadow:rgba(0,0,0,.4);
+}
+.app{max-width:440px;width:100%;background:var(--bg);border-radius:20px;padding:1.5rem;box-shadow:0 2px 24px var(--shadow);align-self:flex-start;transition:background .2s,color .2s}
+
+/* HEADER */
+.header{display:flex;flex-direction:column;align-items:center;padding-bottom:1.25rem}
+.logo-row{display:flex;align-items:center;gap:11px;margin-bottom:3px}
+.logo-svg{width:44px;height:44px;flex-shrink:0}
+.brand-reconstru{font-size:22px;font-weight:300;color:var(--text);letter-spacing:-.3px}
+.brand-fit{font-size:22px;font-weight:800;color:#C40A00;letter-spacing:1px}
+.subtitle{font-size:12px;color:var(--text4);letter-spacing:.02em}
+
+/* TABS */
+.tabs{display:flex;margin-bottom:1.25rem;border:1px solid var(--border);border-radius:11px;overflow:hidden}
+.tab{flex:1;padding:9px;font-size:13px;font-weight:500;text-align:center;cursor:pointer;background:var(--bg);color:var(--text3);border:none;font-family:inherit;transition:all .15s}
+.tab.on{background:#C40A00;color:#fff}
+
+/* GOAL */
+.goal-row{display:flex;gap:8px;margin-bottom:1rem}
+.gpill{padding:7px 16px;border-radius:20px;font-size:13px;cursor:pointer;border:1px solid var(--border);background:var(--bg);color:var(--text2);transition:all .15s}
+.gpill.on{background:#C40A00;color:#fff;border-color:#C40A00;font-weight:600}
+
+/* SEARCH */
+.search-wrap{position:relative;margin-bottom:.5rem}
+.sbox{background:var(--bg);border:1px solid var(--input-border);border-radius:var(--r);padding:12px 16px;display:flex;align-items:center;gap:10px;transition:border-color .15s}
+.sbox:focus-within{border-color:#C40A00}
+.sbox input{flex:1;border:none;outline:none;font-size:15px;background:transparent;color:var(--text)}
+.sbox input::placeholder{color:#ccc}
+.search-status{font-size:11px;padding:5px 10px;margin-top:4px;border-radius:8px;display:none}
+.search-status.taco{background:#eaf3ff;color:#185FA5;display:block}
+.search-status.off{background:#fdf0f0;color:#C40A00;display:block}
+.search-status.loading{background:var(--bg2);color:var(--text3);display:block}
+.search-status.notfound{background:#fff8e1;color:#7a5c00;display:block}
+
+/* ACTION BTNS */
+
+/* SOURCE LEGEND */
+
+/* FOOD CARDS */
+.slabel{font-size:11px;font-weight:600;color:var(--text4);letter-spacing:.07em;text-transform:uppercase;margin-bottom:10px}
+.fcard{background:var(--bg);border:1px solid var(--border2);border-radius:var(--r);padding:14px 16px;margin-bottom:8px;cursor:pointer;display:flex;align-items:center;gap:14px;transition:all .15s}
+.fcard:hover{border-color:#ccc}
+.fcard.sel{border-color:#C40A00;background:#fdf0f0}
+.femoji{font-size:26px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:var(--bg2);border-radius:10px;flex-shrink:0}
+.fname{font-size:15px;font-weight:500;color:var(--text)}
+.fmeta{font-size:12px;color:var(--text3);margin-top:2px}
+.fsrc{font-size:10px;padding:2px 6px;border-radius:5px;margin-top:3px;display:inline-block}
+.fcal{font-size:14px;font-weight:700;color:#C40A00;flex-shrink:0;white-space:nowrap}
+.fcal span{font-size:11px;font-weight:400;color:#ccc}
+
+/* SWAP SECTION */
+.divider{border:none;border-top:1px solid var(--border3);margin:1.25rem 0}
+.banner{background:#fdf0f0;border:1px solid #f0b0b0;border-radius:11px;padding:10px 14px;margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between}
+.banner-text{font-size:13px;color:#C40A00;font-weight:500}
+.banner-btn{font-size:12px;color:#C40A00;cursor:pointer;text-decoration:underline;flex-shrink:0}
+
+/* QTY */
+.qbox{background:var(--bg);border:1.5px solid #C40A00;border-radius:var(--r);padding:14px 16px;margin-bottom:1rem}
+.qrow{display:flex;align-items:center;gap:10px}
+.stepper{display:flex;align-items:center;border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.sbtn{width:38px;height:38px;display:flex;align-items:center;justify-content:center;background:var(--bg2);border:none;cursor:pointer;font-size:20px;color:var(--text2);font-family:inherit}
+.sbtn:hover{background:#fdf0f0;color:#C40A00}
+.sinput{width:62px;height:38px;border:none;border-left:1px solid #eee;border-right:1px solid #eee;text-align:center;font-size:15px;font-weight:700;background:var(--bg);color:var(--text);outline:none}
+.qunit{font-size:13px;color:#888}
+.qsum{flex:1;text-align:right}
+.qkcal{font-size:22px;font-weight:800;color:#C40A00}
+.qkcal-lbl{font-size:11px;color:#bbb}
+.qmacros{display:flex;gap:10px;margin-top:10px;padding-top:10px;border-top:1px solid #f0f0f0}
+.qm{flex:1;text-align:center}
+.qmv{font-size:15px;font-weight:700;color:var(--text)}
+.qmn{font-size:10px;color:var(--text4);margin-top:2px}
+
+/* MODE TOGGLE */
+.mode-toggle{display:flex;border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:10px}
+.mode-btn{flex:1;padding:7px 6px;font-size:11px;font-weight:500;border:none;background:var(--bg);color:var(--text3);cursor:pointer;font-family:inherit;transition:all .15s;line-height:1.3;text-align:center}
+.mode-btn.on{background:#C40A00;color:#fff}
+.mode-btn-sub{font-size:10px;font-weight:400;opacity:.8}
+
+/* SWAP HEADER */
+.swp-hdr{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.swp-icon{width:30px;height:30px;background:#fdf0f0;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.swp-title{font-size:15px;font-weight:700;color:var(--text)}
+.swp-sub{font-size:12px;color:var(--text3);margin-top:1px}
+
+/* FILTERS */
+.ftags{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap}
+.ftag{padding:5px 12px;border-radius:12px;font-size:12px;cursor:pointer;border:1px solid var(--border);background:var(--bg);color:var(--text2);transition:all .15s}
+.ftag.on{background:#C40A00;color:#fff;border-color:#C40A00;font-weight:500}
+.hint{font-size:11px;color:var(--text5);margin-bottom:10px}
+
+/* SWAP CARDS */
+.scard{background:var(--bg);border:1px solid var(--border2);border-radius:var(--r);padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .15s}
+.scard:hover{border-color:#ccc}
+.scard.picked{border-color:#C40A00;background:#fdf0f0}
+.sc-emoji{font-size:22px;width:40px;height:40px;display:flex;align-items:center;justify-content:center;background:var(--bg2);border-radius:10px;flex-shrink:0}
+.sc-name{font-size:14px;font-weight:500;color:var(--text)}
+.mrow{display:flex;gap:5px;margin-top:5px;flex-wrap:wrap}
+.mchip{font-size:10px;padding:2px 7px;border-radius:6px;background:var(--bg2);color:#888}
+.macro-badge{font-size:10px;padding:1px 6px;border-radius:5px;font-weight:600;margin-left:4px;vertical-align:middle}
+.macro-p{background:#fff0e0;color:#b35c00}
+.macro-c{background:#e8f4ff;color:#1a5c9e}
+.macro-g{background:#f0fde8;color:#2d6a10}
+.sc-right{text-align:right;flex-shrink:0}
+.sc-macro-main{font-size:13px;font-weight:700;color:#C40A00;white-space:nowrap}
+.sc-macro-ref{font-size:10px;color:var(--text4);margin-top:1px}
+.dbadge{font-size:11px;padding:2px 8px;border-radius:8px;margin-top:3px;display:inline-block;font-weight:500}
+.ds{background:#fdf0f0;color:#C40A00}
+.dl{background:#E6F1FB;color:#185FA5}
+.dm{background:var(--bg2);color:var(--text2)}
+.dual-row{display:flex;gap:5px;margin-top:4px;flex-wrap:wrap}
+.dual-chip{font-size:10px;padding:2px 7px;border-radius:6px;font-weight:500}
+.dual-cal{background:#fdf0f0;color:#C40A00}
+.dual-mac{background:#f0fde8;color:#2d6a10}
+
+/* SAVE */
+.save-btn{width:100%;padding:13px;background:#C40A00;border:none;border-radius:12px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:.75rem;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .15s}
+.save-btn:hover{background:#a00800}
+.save-toast{text-align:center;font-size:13px;color:#C40A00;font-weight:500;padding:8px 0;display:none}
+
+/* HISTORY */
+.hist-empty{text-align:center;padding:3rem 1rem;color:var(--text5);font-size:14px;line-height:1.7}
+.hist-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+.hist-title{font-size:13px;font-weight:600;color:var(--text4);letter-spacing:.06em;text-transform:uppercase}
+.hist-clear{font-size:12px;color:#C40A00;cursor:pointer;text-decoration:underline}
+.hcard{background:var(--card2);border:1px solid var(--border2);border-radius:12px;padding:12px 14px;margin-bottom:10px}
+.hcard-row{display:flex;align-items:center;gap:8px}
+.harrow{font-size:16px;color:#C40A00;font-weight:700;flex-shrink:0}
+.hfood{font-size:14px;font-weight:500;color:var(--text)}
+.hswap{font-size:13px;color:#C40A00;font-weight:600;margin-top:2px}
+.hdetail{font-size:11px;color:var(--text4);margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.hbadge{font-size:10px;padding:1px 6px;border-radius:5px;background:var(--bg2);color:#888}
+.hbadge-off{background:#fdf0f0;color:#C40A00}
+.hbadge-mac{background:#f0fde8;color:#2d6a10}
+.hdel{margin-left:auto;font-size:20px;color:#ddd;cursor:pointer;flex-shrink:0;line-height:1}
+.hdel:hover{color:#C40A00}
+
+/* MODALS */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;align-items:flex-end;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:var(--bg);border-radius:20px 20px 0 0;padding:1.5rem;width:100%;max-width:440px}
+.modal-title{font-size:16px;font-weight:700;color:var(--text);margin-bottom:.5rem}
+.modal-sub{font-size:13px;color:var(--text3);margin-bottom:1.25rem}
+.bc-input{flex:1;border:1px solid var(--input-border);border-radius:10px;padding:10px 14px;font-size:15px;outline:none;font-family:inherit;color:var(--text)}
+.modal-cancel{width:100%;margin-top:8px;padding:10px;background:var(--modal-cancel);border:none;border-radius:11px;color:var(--text2);font-size:14px;cursor:pointer;font-family:inherit}
+
+
+.bc-status{font-size:13px;padding:8px 12px;border-radius:8px;margin-bottom:.75rem;display:none}
+.bc-status.loading{background:var(--bg2);color:var(--text3);display:block}
+.bc-status.found{background:#eaf7f0;color:#0a6640;display:block}
+.bc-status.error{background:#fdf0f0;color:#C40A00;display:block}
+.empty{text-align:center;padding:2rem 1rem;color:var(--text5);font-size:14px}
+/* SCANNER */
+.scanner-wrap{border-radius:12px;overflow:hidden;background:#000;margin-bottom:.75rem;position:relative;min-height:220px;display:flex;align-items:center;justify-content:center}
+#bcReader video{border-radius:0!important}
+#bcReader{width:100%}
+.scanner-guide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+.scanner-guide-box{width:75%;height:80px;border:2px solid #C40A00;border-radius:8px;box-shadow:0 0 0 1000px rgba(0,0,0,.4)}
+/* PHOTO */
+.photo-result-item{background:var(--card);border:1px solid var(--border2);border-radius:11px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .15s}
+.photo-result-item:hover{border-color:#C40A00;background:#fdf0f0}
+.photo-result-emoji{font-size:24px;width:38px;height:38px;display:flex;align-items:center;justify-content:center;background:var(--bg2);border-radius:9px;flex-shrink:0}
+.photo-result-name{font-size:14px;font-weight:600;color:var(--text)}
+.photo-result-meta{font-size:12px;color:var(--text3);margin-top:2px}
+.photo-retry{background:none;border:1px solid var(--border);border-radius:10px;padding:8px 16px;font-size:13px;color:var(--text3);cursor:pointer;font-family:inherit;width:100%;margin-bottom:.5rem}
+</style>
+<meta name="theme-color" content="#C40A00"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="reconstruFIT"/>
+<meta name="apple-touch-fullscreen" content="yes"/>
+<link rel="manifest" href="/manifest.json"/>
+<link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-180.png"/>
+<link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192.png"/>
+</head>
+<body>
+<div class="app">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo-row">
+      <svg class="logo-svg" viewBox="0 0 100 80" fill="none">
+        <path d="M28 18 L88 18 Q96 18 96 26 L96 38" stroke="#C40A00" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <path d="M28 18 L20 36" stroke="#C40A00" stroke-width="10" stroke-linecap="round" fill="none"/>
+        <path d="M72 62 L12 62 Q4 62 4 54 L4 42" stroke="#C40A00" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <path d="M72 62 L80 44" stroke="#C40A00" stroke-width="10" stroke-linecap="round" fill="none"/>
+      </svg>
+      <div>
+        <div style="display:flex;align-items:baseline;gap:0">
+          <span class="brand-reconstru">reconstru</span><span class="brand-fit">FIT</span>
+        </div>
+      </div>
+    </div>
+    <div class="subtitle">substituições inteligentes por equivalência calórica</div>
+    <button id="themeToggle" onclick="toggleTheme()" style="margin-top:10px;background:none;border:1px solid var(--border);border-radius:20px;padding:5px 14px;font-size:12px;color:var(--text3);cursor:pointer;display:flex;align-items:center;gap:6px;font-family:inherit;transition:all .15s">
+      <span id="themeIcon">🌙</span>
+      <span id="themeLabel">Modo escuro</span>
+    </button>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab on" onclick="showTab('swap',this)">Substituição</button>
+    <button class="tab" onclick="showTab('hist',this)">Recentes</button>
+  </div>
+
+  <!-- TAB SUBSTITUIÇÃO -->
+  <div id="tabSwap">
+    <div class="goal-row">
+      <div class="gpill on" data-g="hipertrofia" onclick="setGoal(this)">Hipertrofia</div>
+      <div class="gpill" data-g="emagrecimento" onclick="setGoal(this)">Emagrecimento</div>
+    </div>
+
+    <div id="searchSection">
+    <div class="search-wrap">
+      <div class="sbox">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="text" id="si" placeholder="Buscar alimento..." oninput="onSearch(this.value)"/>
+        <svg id="clr" style="display:none;cursor:pointer" onclick="clearSrch()" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+      </div>
+      <div class="search-status" id="searchStatus"></div>
+    </div>
+
+
+
+
+    <div class="arow">
+      <button class="abtn" onclick="openBarcodeModal()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="4" width="3" height="16" rx="0.5"/><rect x="6" y="4" width="1.5" height="16" rx="0.5"/><rect x="9" y="4" width="3" height="16" rx="0.5"/><rect x="14" y="4" width="1.5" height="16" rx="0.5"/><rect x="17" y="4" width="1.5" height="16" rx="0.5"/><rect x="20" y="4" width="3" height="16" rx="0.5"/></svg>
+        Código de barras
+      </button>
+      <button class="abtn" onclick="openPhotoModal()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        Foto do alimento
+      </button>
+    </div>
+    <div class="slabel">Alimentos</div>
+    <div id="flist"></div>
+
+    </div><!-- /searchSection -->
+    <!-- SWAP SECTION -->
+    <div id="swpSec" style="display:none">
+      <div class="divider"></div>
+
+      <!-- PASSO 1: alimento do cardápio selecionado -->
+      <div class="step-card" id="stepOriginal">
+        <div class="step-label">substituindo</div>
+        <div class="step-food-row">
+          <div class="step-emoji" id="selEmoji"></div>
+          <div style="flex:1">
+            <div class="step-food-name" id="selName"></div>
+            <div class="step-food-meta" id="selMeta"></div>
+          </div>
+          <button class="step-change-btn" onclick="clearSel()">trocar</button>
+        </div>
+        <!-- quantidade -->
+        <div class="qty-row">
+          <div class="stepper">
+            <button class="sbtn" onclick="changeQty(-10)">−</button>
+            <input class="sinput" type="number" id="qi" value="100" min="1" max="2000" oninput="onQty(this.value)"/>
+            <button class="sbtn" onclick="changeQty(10)">+</button>
+          </div>
+          <span class="qunit">gramas</span>
+          <div class="qsum">
+            <div class="qkcal" id="qkc">—</div>
+            <div class="qkcal-lbl">kcal totais</div>
+          </div>
+        </div>
+        <div class="qmacros">
+          <div class="qm"><div class="qmv" id="qp">—</div><div class="qmn">Proteína (g)</div></div>
+          <div class="qm"><div class="qmv" id="qc">—</div><div class="qmn">Carboidrato (g)</div></div>
+          <div class="qm"><div class="qmv" id="qf">—</div><div class="qmn">Gordura (g)</div></div>
+        </div>
+      </div>
+
+      <!-- SETA ENTRE OS DOIS ALIMENTOS -->
+      <div class="swap-arrow-row">
+        <div class="swap-arrow-line"></div>
+        <div class="swap-arrow-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C40A00" stroke-width="2.5"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+        </div>
+        <div class="swap-arrow-line"></div>
+      </div>
+
+      <!-- PASSO 2: busca do substituto disponível -->
+      <div id="stepSubstituto">
+        <!-- Estado: aguardando busca -->
+        <div id="subSearch">
+          <div class="step-label">o que você tem disponível?</div>
+          <div class="sbox" style="margin-bottom:.5rem">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            <input type="text" id="subInput" placeholder="Ex: ovo, banana, whey..." oninput="onSubSearch(this.value)" autocomplete="off"/>
+            <svg id="subClr" style="display:none;cursor:pointer" onclick="clearSubSearch()" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+          </div>
+          <div class="search-status" id="subStatus"></div>
+          <div id="subList"></div>
+          <div class="arow" style="margin-top:.5rem">
+            <button class="abtn" onclick="openBarcodeModal('sub')">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="4" width="3" height="16" rx="0.5"/><rect x="6" y="4" width="1.5" height="16" rx="0.5"/><rect x="9" y="4" width="3" height="16" rx="0.5"/><rect x="14" y="4" width="1.5" height="16" rx="0.5"/><rect x="17" y="4" width="1.5" height="16" rx="0.5"/><rect x="20" y="4" width="3" height="16" rx="0.5"/></svg>
+              Código de barras
+            </button>
+            <button class="abtn" onclick="openPhotoModal('sub')">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+              Foto
+            </button>
+          </div>
+        </div>
+
+        <!-- Estado: substituto selecionado -->
+        <div id="subSelected" style="display:none">
+          <div class="step-label">substituto escolhido</div>
+          <div class="step-card">
+            <div class="step-food-row">
+              <div class="step-emoji" id="swpEmoji"></div>
+              <div style="flex:1">
+                <div class="step-food-name" id="swpName"></div>
+                <div class="step-food-meta" id="swpMeta"></div>
+              </div>
+              <button class="step-change-btn" onclick="clearSubstituto()">trocar</button>
+            </div>
+          </div>
+
+          <!-- RESULTADO DA COMPARAÇÃO -->
+          <div class="compare-box" id="compareBox">
+            <div class="compare-title">Comparação por modo</div>
+            <div class="mode-toggle" style="margin-bottom:10px">
+              <button class="mode-btn" id="modeCalBtn" onclick="setMode('cal',this)">Por calorias<br><span class="mode-btn-sub">igualar kcal</span></button>
+              <button class="mode-btn" id="modeMacBtn" onclick="setMode('mac',this)">Por macro<br><span class="mode-btn-sub">igualar g do macro</span></button>
+              <button class="mode-btn on" id="modeBothBtn" onclick="setMode('both',this)">Combinado<br><span class="mode-btn-sub">kcal + macro</span></button>
+            </div>
+            <div id="compareResult"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="save-toast" id="saveToast" style="position:sticky;bottom:68px;z-index:10">✓ Salvo nos recentes!</div>
+      <div style="position:sticky;bottom:0;padding:.5rem 0;background:var(--bg)">
+        <button class="save-btn" id="saveBtn" onclick="saveRecent()" disabled>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Salvar nos recentes
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB RECENTES -->
+  <div id="tabHist" style="display:none">
+    <div id="histContent"></div>
+  </div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+// ── TACO DATABASE ─────────────────────────────────────────────────────────
+const TACO=[
+  {id:1,name:"Arroz branco cozido",e:"🍚",cal:128,p:2.5,c:28.1,f:0.2,g:"carboidrato",t:["hipertrofia","emagrecimento"],src:"TACO"},
+  {id:2,name:"Arroz integral cozido",e:"🍚",cal:124,p:2.6,c:25.8,f:1.0,g:"carboidrato",t:["hipertrofia","emagrecimento"],src:"TACO"},
+  {id:3,name:"Aveia em flocos",e:"🌾",cal:394,p:13.9,c:66.6,f:8.5,g:"carboidrato",t:["hipertrofia","emagrecimento"],src:"TACO"},
+  {id:4,name:"Pão de forma",e:"🍞",cal:270,p:7.9,c:49.4,f:4.0,g:"carboidrato",t:["hipertrofia","emagrecimento"],src:"TACO"},
+  {id:5,name:"Pão francês",e:"🥖",cal:300,p:8.0,c:58.6,f:3.1,g:"carboidrato",t:["hipertrofia","emagrecimento"],src:"TACO"},
+  {id:6,name:"Macarrão cozido",e:"🍝",cal:133,p:4.5,c:27.5,f:0.5,g:"carboidrato",t:["hipertrofia","emagrecimento"],src:"TACO"},
+  {id:7,name:"Farinha de trigo",e:"🌾",cal:360,p:9.8,c:75.1,f:1.4,g:"carboidrato",t:["hipertrofia"],src:"TACO"},
+  {id:8,name:"Milho verde cozido",e:"🌽",cal:87,p:3.2,c:18.7,f:1.0,g:"carboidrato",t:["hipertrofia","emagrecimento"],src:"TACO"},
+  {id:9,name:"Cuscuz de milho cozido",e:"🌽",cal:113,p:2.3,c:25.1,f:0.4,g:"carboidrato",t:["hipertrofia","emagrecimento"],src:"TACO"},
+  {id:10,name:"Tapioca hidratada",e:"🫓",cal:145,p:0.0,c:36.0,f:0.0,g:"carboidrato",t:["hipertrofia","emagrecimento"],src:"TACO"},
+  {id:11,name:"Quinoa cozida",e:"🌿",cal:120,p:4.4,c:21.3,f:1.9,g:"carboidrato",t:["hipertrofia","emagrecimento"],src:"TACO"},
+  {id:12,name:"Granola",e:"🥣",cal:401,p:8.4,c:64.9,f:12.3,g:"carboidrato",t:["hipertrofia"],src:"TACO"},
+  {id:20,name:"Feijão preto cozido",e:"🫘",cal:77,p:4.5,c:14.0,f:0.5,g:"carboidrato",t:["hipertrofia","emagrecimento"],src:"TACO"},
+  {id:21,name:"Feijão carioca cozido",e:"🫘",cal:76,p:4.8,c:13.6,f:0.5,g:"carboidrato",t:["hipertrofia","emagrecimento"],src:"TACO"},
+  {id:22,name:"Lentilha cozida",e:"🫘",cal:93,p:6.3,c:16.8,f:0.5,g:"carboidrato",t:["hipertrofia","emagrecimento"],src:"TACO"},
+  {id:23,name:"Grão de bico cozido",e:"🫘",cal:164,p:8.9,c:27.4,f:2.6,g:"carboidrato",t:["hipertrofia","emagrecimento"],src:"TACO"},
+  {id:24,name:"Ervilha cozida",e:"🫛",cal:74,p:5.0,c:12.4,f:0.2,g:"carboidrato",t:["hipertrofia","emagrecimento"],src:"TACO"},
+  {id:25,name:"Soja cozida",e:"🫘",cal:141,p:14.6,c:11.5,f:5.7,g:"proteina",t:["hipertrofia","emagrecimento"],src:"TACO"},
+  {id:30,name:"Batata doce cozida",e:"🍠",cal:77,p:1.0,c:18.4,f:0.1,g:"carboidrato",t:["hipertrofia","emagrecimento"],src:"TACO"},
+  {id:31,name:"Batata inglesa cozida",e:"🥔",cal:52,p:1.2,c:11.9,f:0.1,g:"carboidrato",t:["hipertrofia","emagrecimento"],src:"TACO"},
+  {id:32,name:"Mandioca cozida",e:"🥔",cal:125,p:0.6,c:30.1,f:0.3,g:"carboidrato",t:["hipertrofia","emagrecimento"],src:"TACO"},
+  {id:33,name:"Inhame cozido",e:"🥔",cal:98,p:1.4,c:23.3,f:0.1,g:"carboidrato",t:["hipertrofia","emagrecimento"],src:"TACO"},
+  {id:34,name:"Brócolis cozido",e:"🥦",cal:25,p:3.0,c:3.1,f:0.4,g:"carboidrato",t:["emagrecimento"],src:"TACO"},
+  {id:35,name:"Cenoura crua",e:"🥕",cal:34,p:1.3,c:7.7,f:0.2,g:"carboidrato",t:["emagrecimento","hipertrofia"],src:"TACO"},
+  {id:36,name:"Tomate cru",e:"🍅",cal:15,p:1.1,c:2.3,f:0.2,g:"carboidrato",t:["emagrecimento"],src:"TACO"},
+  {id:37,name:"Alface crua",e:"🥬",cal:11,p:1.3,c:1.7,f:0.2,g:"carboidrato",t:["emagrecimento"],src:"TACO"},
+  {id:38,name:"Espinafre cru",e:"🥬",cal:18,p:2.2,c:2.0,f:0.4,g:"carboidrato",t:["emagrecimento"],src:"TACO"},
+  {id:39,name:"Abobrinha cozida",e:"🥒",cal:16,p:1.2,c:2.5,f:0.2,g:"carboidrato",t:["emagrecimento"],src:"TACO"},
+  {id:40,name:"Chuchu cozido",e:"🥦",cal:19,p:0.6,c:4.2,f:0.1,g:"carboidrato",t:["emagrecimento"],src:"TACO"},
+  {id:41,name:"Beterraba cozida",e:"🫐",cal:39,p:1.9,c:7.9,f:0.1,g:"carboidrato",t:["emagrecimento","hipertrofia"],src:"TACO"},
+  {id:42,name:"Couve-flor cozida",e:"🥦",cal:18,p:2.1,c:2.4,f:0.1,g:"carboidrato",t:["emagrecimento"],src:"TACO"},
+  {id:43,name:"Pepino cru",e:"🥒",cal:12,p:0.7,c:2.2,f:0.2,g:"carboidrato",t:["emagrecimento"],src:"TACO"},
+  {id:44,name:"Berinjela cozida",e:"🍆",cal:19,p:0.8,c:4.1,f:0.1,g:"carboidrato",t:["emagrecimento"],src:"TACO"},
+  {id:50,name:"Banana prata",e:"🍌",cal:98,p:1.3,c:26.0,f:0.1,g:"carboidrato",t:["hipertrofia","emagrecimento"],src:"TACO"},
+  {id:51,name:"Banana nanica",e:"🍌",cal:92,p:1.4,c:23.8,f:0.1,g:"carboidrato",t:["hipertrofia","emagrecimento"],src:"TACO"},
+  {id:52,name:"Maçã fuji",e:"🍎",cal:56,p:0.3,c:15.2,f:0.1,g:"carboidrato",t:["emagrecimento","hipertrofia"],src:"TACO"},
+  {id:53,name:"Laranja pera",e:"🍊",cal:37,p:1.0,c:8.9,f:0.1,g:"carboidrato",t:["emagrecimento","hipertrofia"],src:"TACO"},
+  {id:54,name:"Mamão papaia",e:"🍈",cal:40,p:0.5,c:10.4,f:0.1,g:"carboidrato",t:["emagrecimento","hipertrofia"],src:"TACO"},
+  {id:55,name:"Abacate",e:"🥑",cal:96,p:1.2,c:6.0,f:8.4,g:"gordura",t:["hipertrofia","emagrecimento"],src:"TACO"},
+  {id:56,name:"Morango",e:"🍓",cal:30,p:0.8,c:7.1,f:0.3,g:"carboidrato",t:["emagrecimento","hipertrofia"],src:"TACO"},
+  {id:57,name:"Uva itália",e:"🍇",cal:65,p:0.9,c:17.0,f:0.1,g:"carboidrato",t:["hipertrofia"],src:"TACO"},
+  {id:58,name:"Abacaxi",e:"🍍",cal:48,p:0.9,c:12.3,f:0.1,g:"carboidrato",t:["emagrecimento","hipertrofia"],src:"TACO"},
+  {id:59,name:"Melancia",e:"🍉",cal:33,p:1.0,c:7.8,f:0.4,g:"carboidrato",t:["emagrecimento"],src:"TACO"},
+  {id:60,name:"Manga Tommy",e:"🥭",cal:64,p:0.9,c:17.0,f:0.2,g:"carboidrato",t:["hipertrofia","emagrecimento"],src:"TACO"},
+  {id:61,name:"Goiaba",e:"🍈",cal:54,p:2.3,c:12.5,f:0.5,g:"carboidrato",t:["hipertrofia","emagrecimento"],src:"TACO"},
+  {id:62,name:"Kiwi",e:"🥝",cal:61,p:1.1,c:15.0,f:0.5,g:"carboidrato",t:["emagrecimento","hipertrofia"],src:"TACO"},
+  {id:70,name:"Patinho grelhado",e:"🥩",cal:155,p:27.5,c:0.0,f:4.5,g:"proteina",t:["hipertrofia","emagrecimento"],src:"TACO"},
+  {id:71,name:"Alcatra grelhada",e:"🥩",cal:185,p:26.1,c:0.0,f:8.4,g:"proteina",t:["hipertrofia"],src:"TACO"},
+  {id:72,name:"Filé mignon grelhado",e:"🥩",cal:212,p:27.3,c:0.0,f:10.7,g:"proteina",t:["hipertrofia"],src:"TACO"},
+  {id:73,name:"Carne moída refogada",e:"🥩",cal:211,p:24.9,c:0.0,f:11.8,g:"proteina",t:["hipertrofia"],src:"TACO"},
+  {id:74,name:"Costela bovina cozida",e:"🍖",cal:270,p:24.6,c:0.0,f:18.2,g:"proteina",t:["hipertrofia"],src:"TACO"},
+  {id:80,name:"Frango peito grelhado",e:"🍗",cal:159,p:32.0,c:0.0,f:3.1,g:"proteina",t:["hipertrofia","emagrecimento"],src:"TACO"},
+  {id:81,name:"Frango coxa assada",e:"🍗",cal:238,p:28.5,c:0.0,f:13.4,g:"proteina",t:["hipertrofia"],src:"TACO"},
+  {id:82,name:"Frango sobrecoxa assada",e:"🍗",cal:274,p:26.0,c:0.0,f:18.0,g:"proteina",t:["hipertrofia"],src:"TACO"},
+  {id:83,name:"Peru peito assado",e:"🦃",cal:154,p:28.6,c:0.0,f:3.9,g:"proteina",t:["hipertrofia","emagrecimento"],src:"TACO"},
+  {id:90,name:"Atum em água (lata)",e:"🐟",cal:111,p:24.4,c:0.0,f:1.0,g:"proteina",t:["hipertrofia","emagrecimento"],src:"TACO"},
+  {id:91,name:"Sardinha em óleo (lata)",e:"🐟",cal:270,p:22.5,c:0.0,f:19.2,g:"proteina",t:["hipertrofia"],src:"TACO"},
+  {id:92,name:"Salmão grelhado",e:"🐠",cal:180,p:27.3,c:0.0,f:7.4,g:"proteina",t:["hipertrofia","emagrecimento"],src:"TACO"},
+  {id:93,name:"Tilápia grelhada",e:"🐟",cal:129,p:26.2,c:0.0,f:2.7,g:"proteina",t:["hipertrofia","emagrecimento"],src:"TACO"},
+  {id:94,name:"Camarão cozido",e:"🍤",cal:90,p:18.3,c:0.8,f:1.4,g:"proteina",t:["hipertrofia","emagrecimento"],src:"TACO"},
+  {id:95,name:"Bacalhau cozido",e:"🐟",cal:144,p:31.9,c:0.0,f:1.3,g:"proteina",t:["hipertrofia","emagrecimento"],src:"TACO"},
+  {id:100,name:"Ovo inteiro cozido",e:"🥚",cal:146,p:13.3,c:0.6,f:9.5,g:"proteina",t:["hipertrofia","emagrecimento"],src:"TACO"},
+  {id:101,name:"Clara de ovo cozida",e:"🥚",cal:52,p:11.0,c:0.8,f:0.2,g:"proteina",t:["hipertrofia","emagrecimento"],src:"TACO"},
+  {id:102,name:"Leite integral",e:"🥛",cal:61,p:3.2,c:4.5,f:3.5,g:"proteina",t:["hipertrofia","emagrecimento"],src:"TACO"},
+  {id:103,name:"Leite desnatado",e:"🥛",cal:35,p:3.4,c:4.9,f:0.1,g:"proteina",t:["emagrecimento","hipertrofia"],src:"TACO"},
+  {id:104,name:"Iogurte natural integral",e:"🥛",cal:66,p:3.7,c:4.9,f:3.3,g:"proteina",t:["hipertrofia","emagrecimento"],src:"TACO"},
+  {id:105,name:"Iogurte desnatado",e:"🥛",cal:43,p:4.0,c:6.0,f:0.2,g:"proteina",t:["emagrecimento","hipertrofia"],src:"TACO"},
+  {id:106,name:"Queijo minas frescal",e:"🧀",cal:264,p:17.4,c:2.8,f:20.2,g:"proteina",t:["hipertrofia"],src:"TACO"},
+  {id:107,name:"Queijo cottage",e:"🧀",cal:98,p:11.0,c:3.4,f:4.3,g:"proteina",t:["hipertrofia","emagrecimento"],src:"TACO"},
+  {id:108,name:"Ricota",e:"🧀",cal:135,p:10.7,c:2.1,f:9.5,g:"proteina",t:["hipertrofia","emagrecimento"],src:"TACO"},
+  {id:109,name:"Requeijão cremoso",e:"🧀",cal:255,p:8.7,c:3.2,f:23.3,g:"gordura",t:["hipertrofia"],src:"TACO"},
+  {id:120,name:"Azeite de oliva",e:"🫒",cal:884,p:0.0,c:0.0,f:100.0,g:"gordura",t:["hipertrofia","emagrecimento"],src:"TACO"},
+  {id:121,name:"Óleo de coco",e:"🥥",cal:892,p:0.0,c:0.0,f:99.6,g:"gordura",t:["hipertrofia"],src:"TACO"},
+  {id:122,name:"Manteiga",e:"🧈",cal:726,p:0.4,c:0.1,f:82.4,g:"gordura",t:["hipertrofia"],src:"TACO"},
+  {id:123,name:"Castanha do Pará",e:"🌰",cal:656,p:14.5,c:15.1,f:63.5,g:"gordura",t:["hipertrofia","emagrecimento"],src:"TACO"},
+  {id:124,name:"Castanha de caju",e:"🌰",cal:570,p:15.3,c:29.1,f:46.3,g:"gordura",t:["hipertrofia"],src:"TACO"},
+  {id:125,name:"Amendoim torrado",e:"🥜",cal:581,p:26.0,c:21.4,f:44.0,g:"gordura",t:["hipertrofia"],src:"TACO"},
+  {id:126,name:"Amêndoa",e:"🌰",cal:595,p:21.2,c:21.7,f:47.9,g:"gordura",t:["hipertrofia"],src:"TACO"},
+  {id:127,name:"Coco ralado",e:"🥥",cal:354,p:2.7,c:15.3,f:34.0,g:"gordura",t:["hipertrofia"],src:"TACO"},
+  {id:140,name:"Whey protein concentrado",e:"💪",cal:382,p:73.6,c:11.5,f:6.9,g:"proteina",t:["hipertrofia"],src:"TACO"},
+  {id:141,name:"Albumina em pó",e:"💪",cal:384,p:80.0,c:8.0,f:1.0,g:"proteina",t:["hipertrofia"],src:"TACO"},
+  {id:142,name:"Maltodextrina",e:"⚡",cal:380,p:0.0,c:95.0,f:0.0,g:"carboidrato",t:["hipertrofia"],src:"TACO"},
+  {id:150,name:"Mel",e:"🍯",cal:309,p:0.4,c:83.8,f:0.0,g:"carboidrato",t:["hipertrofia"],src:"TACO"},
+  {id:151,name:"Açúcar refinado",e:"🍬",cal:387,p:0.0,c:99.5,f:0.0,g:"carboidrato",t:["hipertrofia"],src:"TACO"},
+  {id:152,name:"Cacau em pó",e:"🍫",cal:354,p:19.6,c:57.9,f:10.9,g:"carboidrato",t:["hipertrofia","emagrecimento"],src:"TACO"},
+  {id:153,name:"Linhaça",e:"🌱",cal:495,p:17.5,c:35.9,f:33.5,g:"gordura",t:["hipertrofia","emagrecimento"],src:"TACO"},
+  {id:154,name:"Chia",e:"🌱",cal:490,p:16.5,c:44.0,f:30.7,g:"gordura",t:["hipertrofia","emagrecimento"],src:"TACO"},
+  {id:155,name:"Proteína de soja texturizada",e:"🫘",cal:338,p:50.6,c:34.0,f:1.2,g:"proteina",t:["hipertrofia","emagrecimento"],src:"TACO"},
+];
+
+
+// ── FEATURED FOODS (mostrados por padrão na tela inicial) ─────────────────
+// Hipertrofia: proteínas e carboidratos mais usados
+const FEATURED = {
+  hipertrofia:   [80, 90, 100, 3, 30, 2],
+  emagrecimento: [80, 90, 101, 34, 30, 52]
+};
+let showAllFoods = false;
+
+// ── STATE ─────────────────────────────────────────────────────────────────
+let goal="hipertrofia", sel=null, qty=100;
+let swapMode="both", selectedSwap=null;
+let srch="", filt="todos";
+let displayedFoods=[], offResults=[], searchTimer=null, bcFoundFood=null;
+// substituto escolhido pelo aluno
+let subSearchTimer=null, subDisplayedFoods=[], subSel=null;
+// barcode target: 'orig' or 'sub'
+let recents=JSON.parse(localStorage.getItem("rf_recents")||"[]");
+
+function persist(){localStorage.setItem("rf_recents",JSON.stringify(recents));}
+const pr=(v,q)=>+(v*q/100).toFixed(1);
+const rnd=v=>Math.round(v);
+
+// ── TABS ──────────────────────────────────────────────────────────────────
+function showTab(t,el){
+  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("on"));el.classList.add("on");
+  document.getElementById("tabSwap").style.display=t==="swap"?"block":"none";
+  document.getElementById("tabHist").style.display=t==="hist"?"block":"none";
+  if(t==="hist")renderHistory();
+}
+
+// ── GOAL & FILTER ─────────────────────────────────────────────────────────
+function setGoal(el){
+  document.querySelectorAll(".gpill").forEach(x=>x.classList.remove("on"));
+  el.classList.add("on"); goal=el.dataset.g;
+  sel=null; selectedSwap=null; showAllFoods=false;
+  document.getElementById("swpSec").style.display="none";
+  displayedFoods=TACO.filter(f=>f.t.includes(goal));
+  renderFoods();
+}
+function setFilt(el){
+  document.querySelectorAll(".ftag").forEach(x=>x.classList.remove("on"));
+  el.classList.add("on"); filt=el.dataset.f; selectedSwap=null; 
+}
+
+// ── SWAP MODE ─────────────────────────────────────────────────────────────
+
+function dominantMacro(food){
+  const macros=[
+    {key:"p",val:food.p,label:"Proteína",cls:"macro-p"},
+    {key:"c",val:food.c,label:"Carboidrato",cls:"macro-c"},
+    {key:"f",val:food.f,label:"Gordura",cls:"macro-g"},
+  ];
+  return macros.reduce((a,b)=>a.val>=b.val?a:b);
+}
+
+// ── OPEN FOOD FACTS ───────────────────────────────────────────────────────
+const OFF_BASE="https://world.openfoodfacts.org";
+const OFF_BR="https://br.openfoodfacts.org";
+function mapOFFProduct(p){
+  const n=p.nutriments||{};
+  const cal=n["energy-kcal_100g"]||(n["energy_100g"]?Math.round(n["energy_100g"]/4.184):null);
+  if(!cal||cal<=0)return null;
+  const prot=+(n["proteins_100g"]||0).toFixed(1);
+  const carb=+(n["carbohydrates_100g"]||0).toFixed(1);
+  const fat=+(n["fat_100g"]||0).toFixed(1);
+  const name=(p.product_name_pt||p.product_name_en||p.product_name||"").trim();
+  if(!name)return null;
+  const cats=(p.categories||"").toLowerCase();
+  let g="carboidrato";
+  if(prot>=15&&prot>carb&&prot>fat)g="proteina";
+  else if(fat>=15&&fat>carb&&fat>prot)g="gordura";
+  else if(cats.includes("meat")||cats.includes("fish")||cats.includes("carne")||cats.includes("peixe"))g="proteina";
+  return{id:"off_"+p.code,name,brand:p.brands||"",e:"🛒",cal:Math.round(cal),p:prot,c:carb,f:fat,g,t:["hipertrofia","emagrecimento"],src:"OFF"};
+}
+async function searchOFF(query){
+  const url=`${OFF_BASE}/cgi/search.pl?search_terms=${encodeURIComponent(query)}&search_simple=1&action=process&json=1&page_size=8&fields=product_name,product_name_pt,product_name_en,brands,nutriments,categories,code`;
+  const r=await fetch(url,{headers:{"Accept":"application/json"}});
+  if(!r.ok)throw new Error("HTTP "+r.status);
+  const d=await r.json();
+  return(d.products||[]).map(mapOFFProduct).filter(Boolean).slice(0,5);
+}
+
+// ── SEARCH ────────────────────────────────────────────────────────────────
+function searchTACO(q){return TACO.filter(f=>f.t.includes(goal)&&f.name.toLowerCase().includes(q.toLowerCase()));}
+function setSearchStatus(type,text){const el=document.getElementById("searchStatus");el.className="search-status "+type;el.textContent=text;}
+
+async function onSearch(val){
+  srch=val;
+  document.getElementById("clr").style.display=val?"block":"none";
+  clearTimeout(searchTimer);
+  if(!val.trim()){
+    displayedFoods=TACO.filter(f=>f.t.includes(goal));
+    offResults=[];
+    document.getElementById("searchStatus").className="search-status";
+    renderFoods();return;
+  }
+  const tacoRes=searchTACO(val);
+  displayedFoods=[...tacoRes];offResults=[];
+  if(tacoRes.length>0)setSearchStatus("taco",`✓ ${tacoRes.length} resultado(s) na TACO`);
+  else setSearchStatus("loading","Consultando Open Food Facts...");
+  renderFoods();
+  searchTimer=setTimeout(async()=>{
+    if(!val.trim())return;
+    try{
+      if(tacoRes.length>0)setSearchStatus("loading","Buscando também no Open Food Facts...");
+      const offRes=await searchOFF(val);
+      offResults=offRes;
+      displayedFoods=[...tacoRes,...offRes];
+      if(!displayedFoods.length)setSearchStatus("notfound","Nenhum resultado. Tente outro termo.");
+      else if(!tacoRes.length&&offRes.length)setSearchStatus("off",`${offRes.length} produto(s) no Open Food Facts`);
+      else if(tacoRes.length&&offRes.length)setSearchStatus("taco",`TACO: ${tacoRes.length} • Open Food Facts: ${offRes.length}`);
+      else setSearchStatus("taco",`${tacoRes.length} resultado(s) na TACO`);
+      renderFoods();
+    }catch(e){
+      console.warn("OFF:",e.message);
+      if(!tacoRes.length)setSearchStatus("notfound","Open Food Facts indisponível. Verifique sua conexão.");
+      else setSearchStatus("taco",`${tacoRes.length} resultado(s) na TACO`);
+    }
+  },500);
+}
+function clearSrch(){
+  clearTimeout(searchTimer);
+  document.getElementById("si").value="";srch="";
+  document.getElementById("clr").style.display="none";
+  const ss=document.getElementById("searchStatus");
+  ss.className="search-status";ss.textContent="";
+  displayedFoods=TACO.filter(f=>f.t.includes(goal));offResults=[];renderFoods();
+}
+
+// ── FOOD LIST ─────────────────────────────────────────────────────────────
+function renderFoods(){
+  const fl=document.getElementById("flist");
+  let items;
+  if(srch.trim()){
+    items=displayedFoods;
+  } else {
+    const all=TACO.filter(f=>f.t.includes(goal));
+    if(showAllFoods){
+      items=all;
+    } else {
+      const featIds=FEATURED[goal]||[];
+      items=featIds.map(id=>all.find(f=>f.id===id)).filter(Boolean);
+    }
+  }
+  if(!items.length){fl.innerHTML='<div class="empty">Nenhum alimento encontrado</div>';return;}
+  const allCount=TACO.filter(f=>f.t.includes(goal)).length;
+  const showToggle=!srch.trim();
+  fl.innerHTML=items.map(f=>`
+    <div class="fcard ${sel&&String(sel.id)===String(f.id)?'sel':''}" data-fid="${f.id}" onclick="pickFood(this.dataset.fid)">
+      <div class="femoji">${f.e}</div>
+      <div style="flex:1">
+        <div class="fname">${f.name}${f.brand?` <span style="font-size:11px;color:var(--text4)">${f.brand}</span>`:""}</div>
+        <div class="fmeta">P:${f.p}g &nbsp;C:${f.c}g &nbsp;G:${f.f}g <span style="font-size:11px;color:var(--text5)">por 100g</span></div>
+        <span class="fsrc ${f.src==="TACO"?"fsrc-taco":"fsrc-off"}">${f.src==="TACO"?"TACO":"Open Food Facts"}</span>
+      </div>
+      <div class="fcal">${f.cal}<span> kcal</span></div>
+    </div>`).join("")+
+    (showToggle ? `<div style="text-align:center;padding:.75rem 0 .25rem">
+      <button onclick="toggleAllFoods()" style="background:none;border:1px solid var(--border);border-radius:20px;padding:7px 20px;font-size:12px;color:var(--text3);cursor:pointer;font-family:inherit;transition:all .15s">
+        ${showAllFoods ? '▲ Ver menos' : `▼ Ver todos os ${allCount} alimentos`}
+      </button>
+    </div>` : '');
+}
+
+function toggleAllFoods(){
+  showAllFoods=!showAllFoods;
+  renderFoods();
+}
+
+function pickFood(id){
+  const pool=new Map();
+  TACO.forEach(f=>pool.set(String(f.id),f));
+  displayedFoods.forEach(f=>pool.set(String(f.id),f));
+  sel=pool.get(String(id));
+  if(!sel)return;
+  qty=100;selectedSwap=null;subSel=null;swapMode="both";showAllFoods=false;
+  document.getElementById("qi").value=100;
+  document.querySelectorAll(".mode-btn").forEach(b=>b.classList.remove("on"));
+  document.getElementById("modeBothBtn").classList.add("on");
+  // Preencher step card do original
+  document.getElementById("selEmoji").textContent=sel.e;
+  document.getElementById("selName").textContent=sel.name;
+  document.getElementById("selMeta").textContent=`${sel.cal} kcal | P:${sel.p}g C:${sel.c}g G:${sel.f}g (por 100g)`;
+  // Ocultar lista de alimentos, mostrar swap section
+  document.getElementById("searchSection").style.display="none";
+  document.getElementById("swpSec").style.display="block";
+  document.getElementById("saveToast").style.display="none";
+  document.getElementById("saveBtn").disabled=true;
+  // Resetar busca do substituto
+  clearSubSearch();
+  document.getElementById("subSelected").style.display="none";
+  document.getElementById("subSearch").style.display="block";
+  updateQty();
+  setTimeout(()=>document.getElementById("swpSec").scrollIntoView({behavior:"smooth",block:"start"}),100);
+}
+function clearSel(){
+  sel=null;selectedSwap=null;subSel=null;swapMode="both";showAllFoods=false;
+  document.querySelectorAll(".mode-btn").forEach(b=>b.classList.remove("on"));
+  document.getElementById("modeBothBtn").classList.add("on");
+  document.getElementById("swpSec").style.display="none";
+  document.getElementById("searchSection").style.display="block";
+  renderFoods();
+}
+
+// ── QUANTITY ──────────────────────────────────────────────────────────────
+function changeQty(d){qty=Math.max(1,Math.min(2000,qty+d));document.getElementById("qi").value=qty;updateQty();selectedSwap=null;document.getElementById("saveBtn").disabled=true;}
+function onQty(v){const n=parseInt(v);if(!isNaN(n)&&n>0){qty=Math.min(2000,n);updateQty();selectedSwap=null;document.getElementById("saveBtn").disabled=true;}}
+function updateQty(){
+  if(!sel)return;
+  document.getElementById("qkc").textContent=rnd(pr(sel.cal,qty));
+  document.getElementById("qp").textContent=pr(sel.p,qty);
+  document.getElementById("qc").textContent=pr(sel.c,qty);
+  document.getElementById("qf").textContent=pr(sel.f,qty);
+  if(subSel)renderCompare();
+}
+
+// ── SUBSTITUTO SEARCH ────────────────────────────────────────────────────
+function setSubStatus(type,text){
+  const el=document.getElementById("subStatus");
+  el.className="search-status "+type;el.textContent=text;
+}
+
+async function onSubSearch(val){
+  document.getElementById("subClr").style.display=val?"block":"none";
+  clearTimeout(subSearchTimer);
+  if(!val.trim()){
+    document.getElementById("subList").innerHTML="";
+    document.getElementById("subStatus").className="search-status";
+    subDisplayedFoods=[];return;
+  }
+  // TACO first
+  const tacoRes=TACO.filter(f=>
+    String(f.id)!==String(sel?.id) &&
+    f.name.toLowerCase().includes(val.toLowerCase())
+  );
+  subDisplayedFoods=[...tacoRes];
+  if(tacoRes.length>0)setSubStatus("taco",`✓ ${tacoRes.length} na TACO`);
+  else setSubStatus("loading","Consultando Open Food Facts...");
+  renderSubList();
+  subSearchTimer=setTimeout(async()=>{
+    if(!val.trim())return;
+    try{
+      if(tacoRes.length>0)setSubStatus("loading","Buscando no Open Food Facts...");
+      const offRes=await searchOFF(val);
+      subDisplayedFoods=[...tacoRes,...offRes];
+      if(!subDisplayedFoods.length) setSubStatus("notfound","Nenhum resultado. Tente outro nome.");
+      else if(!tacoRes.length&&offRes.length) setSubStatus("off",`${offRes.length} produto(s) no Open Food Facts`);
+      else if(tacoRes.length&&offRes.length) setSubStatus("taco",`TACO: ${tacoRes.length} • OFF: ${offRes.length}`);
+      else setSubStatus("taco",`${tacoRes.length} na TACO`);
+      renderSubList();
+    }catch(e){
+      console.warn("OFF sub:",e.message);
+      if(!tacoRes.length)setSubStatus("notfound","Open Food Facts indisponível.");
+    }
+  },500);
+}
+
+function clearSubSearch(){
+  clearTimeout(subSearchTimer);
+  const inp=document.getElementById("subInput");
+  if(inp)inp.value="";
+  document.getElementById("subClr").style.display="none";
+  document.getElementById("subStatus").className="search-status";
+  document.getElementById("subList").innerHTML="";
+  subDisplayedFoods=[];
+}
+
+function renderSubList(){
+  const sl=document.getElementById("subList");
+  if(!subDisplayedFoods.length){sl.innerHTML="";return;}
+  sl.innerHTML=subDisplayedFoods.map(f=>`
+    <div class="fcard" data-sfid="${f.id}" onclick="pickSubstituto(this.dataset.sfid)" style="margin-bottom:8px">
+      <div class="femoji">${f.e}</div>
+      <div style="flex:1">
+        <div class="fname">${f.name}${f.brand?` <span style="font-size:11px;color:var(--text4)">${f.brand}</span>`:""}</div>
+        <div class="fmeta">P:${f.p}g C:${f.c}g G:${f.f}g <span style="font-size:11px;color:var(--text5)">por 100g</span></div>
+        <span class="fsrc ${f.src==="TACO"?"fsrc-taco":"fsrc-off"}">${f.src==="TACO"?"TACO":"OFF"}</span>
+      </div>
+      <div class="fcal">${f.cal}<span> kcal</span></div>
+    </div>`).join("");
+}
+
+function pickSubstituto(id){
+  const pool=new Map();
+  TACO.forEach(f=>pool.set(String(f.id),f));
+  subDisplayedFoods.forEach(f=>pool.set(String(f.id),f));
+  subSel=pool.get(String(id));
+  if(!subSel)return;
+  selectedSwap={...subSel};
+  // Mostrar o card do substituto selecionado
+  document.getElementById("swpEmoji").textContent=subSel.e;
+  document.getElementById("swpName").textContent=subSel.name+(subSel.brand?` (${subSel.brand})`:"");
+  document.getElementById("swpMeta").textContent=`${subSel.cal} kcal | P:${subSel.p}g C:${subSel.c}g G:${subSel.f}g (por 100g)`;
+  document.getElementById("subSearch").style.display="none";
+  document.getElementById("subSelected").style.display="block";
+  document.getElementById("saveBtn").disabled=false;
+  renderCompare();
+  setTimeout(()=>document.getElementById("compareBox").scrollIntoView({behavior:"smooth",block:"nearest"}),100);
+}
+
+function clearSubstituto(){
+  subSel=null;selectedSwap=null;
+  document.getElementById("subSelected").style.display="none";
+  document.getElementById("subSearch").style.display="block";
+  document.getElementById("saveBtn").disabled=true;
+  clearSubSearch();
+  setTimeout(()=>document.getElementById("subInput").focus(),100);
+}
+
+// ── SWAPS ─────────────────────────────────────────────────────────────────
+function badge(a,b){const d=b-a,p=rnd((d/a)*100);if(Math.abs(p)<=10)return{l:"≈ igual",c:"ds"};if(d<0)return{l:`${Math.abs(p)}% menos`,c:"dl"};return{l:`+${p}% mais`,c:"dm"};}
+
+function setMode(m,el){
+  swapMode=m;
+  document.querySelectorAll(".mode-btn").forEach(b=>b.classList.remove("on"));
+  el.classList.add("on");
+  renderCompare();
+}
+
+function renderCompare(){
+  if(!sel||!subSel)return;
+  const totalCal=rnd(pr(sel.cal,qty));
+  const dom=dominantMacro(sel);
+  const totalMacro=pr(sel[dom.key],qty);
+  const cr=document.getElementById("compareResult");
+
+  // Calcular quantidade do substituto
+  let swapQty, swapCal, swapMacro, modeLabel;
+  if(swapMode==="cal"){
+    swapQty = subSel.cal>0 ? rnd((totalCal/subSel.cal)*100) : 0;
+    swapCal = rnd(pr(subSel.cal,swapQty));
+    swapMacro = pr(subSel[dom.key],swapQty);
+    modeLabel = "Para igualar as calorias";
+  } else if(swapMode==="mac"){
+    const macVal=subSel[dom.key];
+    swapQty = macVal>0 ? rnd((totalMacro/macVal)*100) : 0;
+    swapCal = rnd(pr(subSel.cal,swapQty));
+    swapMacro = +(pr(subSel[dom.key],swapQty)).toFixed(1);
+    modeLabel = `Para igualar ${dom.label.toLowerCase()}`;
+  } else {
+    // combinado: usa macro como referência, mostra diferença calórica
+    const macVal=subSel[dom.key];
+    swapQty = macVal>0 ? rnd((totalMacro/macVal)*100) : rnd((totalCal/subSel.cal)*100);
+    swapCal = rnd(pr(subSel.cal,swapQty));
+    swapMacro = +(pr(subSel[dom.key],swapQty)).toFixed(1);
+    modeLabel = "Quantidade equivalente";
+  }
+
+  // Salvar no selectedSwap para o histórico
+  selectedSwap={...subSel, ng:swapQty, tc:swapCal, mode:swapMode};
+
+  // Badges de diferença
+  const calDiff = totalCal>0?Math.round(((swapCal-totalCal)/totalCal)*100):0;
+  const macDiff = +totalMacro>0?Math.round(((swapMacro-totalMacro)/+totalMacro)*100):0;
+
+  function diffPill(pct, label){
+    const cls = Math.abs(pct)<=10?"ds":pct<0?"dl":"dm";
+    const sign = Math.abs(pct)<=10?"≈ igual":pct<0?`${Math.abs(pct)}% menos ${label}`:` +${pct}% mais ${label}`;
+    return `<span class="diff-pill dbadge ${cls}">${sign}</span>`;
+  }
+
+  cr.innerHTML=`
+    <div class="compare-result-card">
+      <div class="cr-row">
+        <span class="cr-label">${modeLabel}</span>
+      </div>
+      <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:4px">
+        <div class="cr-qty">${swapQty}g</div>
+        <div class="cr-qty-lbl">de ${subSel.name}</div>
+      </div>
+      ${diffPill(calDiff,"kcal")}
+      ${swapMode!=="cal"?diffPill(macDiff,dom.label.toLowerCase()):""}
+      <div class="cr-divider"></div>
+      <div style="display:flex;gap:8px;font-size:12px;color:var(--text3);margin-bottom:8px">
+        <span>Original: ${totalCal} kcal • ${totalMacro}g ${dom.label.toLowerCase()}</span>
+      </div>
+      <div style="display:flex;gap:8px;font-size:12px;color:var(--text3)">
+        <span>Substituto: ${swapCal} kcal • ${swapMacro}g ${dom.label.toLowerCase()}</span>
+      </div>
+      <div class="cr-macros">
+        <div class="cr-macro"><div class="cr-macro-v">${pr(subSel.p,swapQty)}g</div><div class="cr-macro-n">Proteína</div></div>
+        <div class="cr-macro"><div class="cr-macro-v">${pr(subSel.c,swapQty)}g</div><div class="cr-macro-n">Carboidrato</div></div>
+        <div class="cr-macro"><div class="cr-macro-v">${pr(subSel.f,swapQty)}g</div><div class="cr-macro-n">Gordura</div></div>
+      </div>
+    </div>`;
+}
+
+
+
+
+
+
+// ── SAVE TO RECENTS ───────────────────────────────────────────────────────
+function saveRecent(){
+  if(!sel||!subSel)return;
+  if(selectedSwap)selectedSwap={...subSel,ng:selectedSwap.ng||0,tc:selectedSwap.tc||0,mode:swapMode};
+  const dom=dominantMacro(sel);
+  recents.unshift({
+    id:Date.now(),
+    date:new Date().toLocaleString("pt-BR"),
+    original:{name:sel.name,e:sel.e,cal:sel.cal,src:sel.src||"TACO"},
+    swap:{name:selectedSwap.name,e:selectedSwap.e,ng:selectedSwap.ng,tc:selectedSwap.tc},
+    qty,
+    mode:selectedSwap.mode||swapMode,
+    domMacro:{label:dom.label,key:dom.key,totalG:pr(sel[dom.key],qty)}
+  });
+  // Keep only last 30
+  if(recents.length>30)recents=recents.slice(0,30);
+  persist();
+  const t=document.getElementById("saveToast");t.style.display="block";
+  setTimeout(()=>t.style.display="none",2000);
+}
+
+// ── HISTORY ───────────────────────────────────────────────────────────────
+function renderHistory(){
+  const hc=document.getElementById("histContent");
+  if(!recents.length){
+    hc.innerHTML=`<div class="hist-empty">Nenhuma substituição recente.<br>Faça uma troca e toque em<br><strong>Salvar nos recentes</strong>.</div>`;
+    return;
+  }
+  hc.innerHTML=`
+    <div class="hist-header">
+      <span class="hist-title">Trocas recentes</span>
+      <span class="hist-clear" onclick="clearAll()">Limpar tudo</span>
+    </div>`+
+  recents.map(h=>`
+    <div class="hcard">
+      <div class="hcard-row">
+        <span style="font-size:20px">${h.original.e}</span>
+        <span class="harrow">→</span>
+        <span style="font-size:20px">${h.swap.e}</span>
+        <div style="flex:1;margin-left:6px">
+          <div class="hfood">${h.original.name} <span style="color:var(--text5);font-size:12px">${h.qty}g</span></div>
+          <div class="hswap">${h.swap.name} <span style="font-size:12px;color:var(--text4);font-weight:400">${h.swap.ng}g</span></div>
+        </div>
+        <span class="hdel" onclick="delRecent(${h.id})">×</span>
+      </div>
+      <div class="hdetail">
+        <span>${h.original.cal} kcal → ${h.swap.tc} kcal</span>
+        ${h.domMacro?`<span class="hbadge hbadge-mac">${h.domMacro.label} ${h.domMacro.totalG}g</span>`:""}
+        ${h.mode&&h.mode!=="cal"?`<span class="hbadge">${h.mode==="mac"?"por macro":"combinado"}</span>`:""}
+        ${h.original.src==="OFF"?`<span class="hbadge hbadge-off">OFF</span>`:""}
+        <span style="margin-left:auto;color:var(--text5)">${h.date}</span>
+      </div>
+    </div>`).join("");
+}
+function delRecent(id){recents=recents.filter(r=>r.id!==id);persist();renderHistory();}
+function clearAll(){if(!confirm("Limpar todo o histórico recente?"))return;recents=[];persist();renderHistory();}
+
+
+
+
+
+
+
+// ── THEME ─────────────────────────────────────────────────────────────────
+function applyTheme(dark){
+  document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+  document.getElementById('themeIcon').textContent = dark ? '☀️' : '🌙';
+  document.getElementById('themeLabel').textContent = dark ? 'Modo claro' : 'Modo escuro';
+  localStorage.setItem('rf_theme', dark ? 'dark' : 'light');
+}
+function toggleTheme(){
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  applyTheme(!isDark);
+}
+// Restore saved theme
+(function(){
+  const saved = localStorage.getItem('rf_theme');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  applyTheme(saved ? saved === 'dark' : prefersDark);
+})();
+
+
+// ── API KEY (Gemini) ──────────────────────────────────────────────────────
+function getApiKey(){return localStorage.getItem("rf_gemini_key")||"";}
+function saveApiKey(){
+  const key=document.getElementById("apiKeyInput").value.trim();
+  if(!key){alert("Cole a chave.");return;}
+  localStorage.setItem("rf_gemini_key",key);
+  document.getElementById("configModal").classList.remove("open");
+  // indicador visual no botão de foto
+  const toast=document.createElement("div");
+  toast.textContent="✓ Chave Gemini salva! Agora use o botão Foto.";
+  toast.style.cssText="position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#0a6640;color:#fff;padding:10px 18px;border-radius:20px;font-size:13px;font-family:inherit;z-index:999;white-space:nowrap";
+  document.body.appendChild(toast);
+  setTimeout(()=>toast.remove(),3000);
+}
+
+// ── BARCODE (html5-qrcode) ────────────────────────────────────────────────
+let bcScanner=null;
+let bcTarget='orig';
+
+function openBarcodeModal(target){
+  bcTarget=target||'orig';
+  document.getElementById("bcStatus").className="bc-status";
+  document.getElementById("bcResult").style.display="none";
+  document.getElementById("bcConfirm").style.display="none";
+  document.getElementById("bcSub").textContent="Aponte a câmera para o código do produto";
+  document.getElementById("bcReader").innerHTML="";
+  document.getElementById("bcModal").classList.add("open");
+  startScanner();
+}
+
+function startScanner(){
+  if(typeof Html5Qrcode==="undefined"){
+    document.getElementById("bcSub").textContent="Leitor não carregado — digite o código abaixo";
+    return;
+  }
+  try{
+    bcScanner=new Html5Qrcode("bcReader");
+    const config={fps:10,qrbox:{width:250,height:80},rememberLastUsedCamera:true,aspectRatio:1.5};
+    bcScanner.start(
+      {facingMode:"environment"},
+      config,
+      async(code)=>{
+        await bcScanner.stop();bcScanner=null;
+        document.getElementById("bcScannerWrap").style.display="none";
+        await lookupBarcode(code);
+      },
+      ()=>{}
+    ).catch(e=>{
+      console.warn("Scanner:",e);
+      document.getElementById("bcSub").textContent="Câmera indisponível. Digite o código:";
+      showManualInput();
+    });
+  }catch(e){
+    document.getElementById("bcSub").textContent="Câmera indisponível. Digite o código:";
+    showManualInput();
+  }
+}
+
+function showManualInput(){
+  const wrap=document.getElementById("bcScannerWrap");
+  wrap.innerHTML=`<div style="padding:1rem;width:100%">
+    <div style="display:flex;gap:8px">
+      <input id="bcManInput" type="number" placeholder="Código EAN..." style="flex:1;border:1px solid var(--input-border);border-radius:10px;padding:10px 14px;font-size:15px;outline:none;font-family:inherit;color:var(--text);background:var(--input-bg)" onkeydown="if(event.key==='Enter')manualBarcode()"/>
+      <button onclick="manualBarcode()" style="padding:10px 16px;background:#C40A00;border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Buscar</button>
+    </div>
+  </div>`;
+}
+
+function manualBarcode(){
+  const code=document.getElementById("bcManInput")?.value?.trim();
+  if(!code){alert("Digite um código.");return;}
+  document.getElementById("bcScannerWrap").innerHTML="";
+  lookupBarcode(code);
+}
+
+function closeBarcodeModal(){
+  if(bcScanner){try{bcScanner.stop();}catch(e){}bcScanner=null;}
+  document.getElementById("bcModal").classList.remove("open");
+  document.getElementById("bcScannerWrap").style.display="";
+}
+
+async function lookupBarcode(code){
+  const st=document.getElementById("bcStatus");
+  st.className="bc-status loading";st.textContent=`Buscando código ${code}...`;
+  document.getElementById("bcResult").style.display="none";
+  document.getElementById("bcConfirm").style.display="none";
+  let food=null;
+  // Tentar OFF Brasil primeiro, depois world
+  for(const base of["https://br.openfoodfacts.org","https://world.openfoodfacts.org"]){
+    try{
+      const r=await fetch(`${base}/api/v2/product/${code}.json?fields=product_name,product_name_pt,product_name_en,brands,nutriments,categories,code`,{headers:{"Accept":"application/json"}});
+      if(!r.ok) continue;
+      const d=await r.json();
+      if(d.status===1){food=mapOFFProduct(d.product);if(food)break;}
+    }catch(e){console.warn("BC lookup:",e);}
+  }
+  if(!food){
+    st.className="bc-status error";
+    st.textContent="Produto não encontrado. Tente digitar o nome na busca.";
+    showManualInput();
+    return;
+  }
+  document.getElementById("bcBrand").textContent=food.brand||"";
+  document.getElementById("bcName").textContent=food.name;
+  document.getElementById("bcMeta").textContent=`${food.cal} kcal | P:${food.p}g C:${food.c}g G:${food.f}g (por 100g)`;
+  st.className="bc-status found";st.textContent="✓ Produto encontrado!";
+  document.getElementById("bcResult").style.display="block";
+  document.getElementById("bcConfirm").style.display="block";
+  // salvar para confirmar
+  window._bcFood=food;
+}
+
+function confirmBarcode(){
+  const food=window._bcFood;
+  if(!food)return;
+  closeBarcodeModal();
+  if(bcTarget==='sub'){
+    subDisplayedFoods=[food,...subDisplayedFoods];
+    renderSubList();
+    setTimeout(()=>pickSubstituto(food.id),100);
+  }else{
+    if(!displayedFoods.find(f=>f.id===food.id))displayedFoods=[food,...displayedFoods];
+    renderFoods();
+    setTimeout(()=>pickFood(food.id),100);
+  }
+}
+
+// ── FOTO + GEMINI ─────────────────────────────────────────────────────────
+let photoTarget='orig';
+
+function openPhotoModal(target){
+  photoTarget=target||'orig';
+  document.getElementById("photoModal").classList.add("open");
+  document.getElementById("photoPreviewArea").style.display="none";
+  document.getElementById("photoUpload").style.display="block";
+  document.getElementById("photoStatus").className="bc-status";
+  document.getElementById("photoResults").innerHTML="";
+  document.getElementById("photoCancelBtn").textContent="Cancelar";
+  document.getElementById("photoSub").textContent="Tire uma foto ou escolha da galeria";
+  document.getElementById("photoFile").value="";
+}
+function closePhotoModal(){document.getElementById("photoModal").classList.remove("open");}
+
+async function handlePhoto(input){
+  if(!input.files||!input.files[0])return;
+  const apiKey=getApiKey();
+  if(!apiKey){
+    input.value="";
+    document.getElementById("configModal").classList.add("open");
+    document.getElementById("apiKeyInput").value="";
+    return;
+  }
+  const file=input.files[0];
+  const st=document.getElementById("photoStatus");
+  const results=document.getElementById("photoResults");
+  const reader=new FileReader();
+  reader.onload=async(e)=>{
+    const base64Full=e.target.result;
+    const base64Data=base64Full.split(",")[1];
+    const mimeType=file.type||"image/jpeg";
+    document.getElementById("photoPreview").src=base64Full;
+    document.getElementById("photoPreviewArea").style.display="block";
+    document.getElementById("photoUpload").style.display="none";
+    document.getElementById("photoSub").textContent="Analisando...";
+    st.className="bc-status loading";st.textContent="🤖 Identificando com Gemini...";
+    results.innerHTML="";
+    try{
+      const url=`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+      const r=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
+        contents:[{parts:[
+          {inline_data:{mime_type:mimeType,data:base64Data}},
+          {text:`Identifique os alimentos nesta imagem. Responda SOMENTE em JSON válido:
+{"alimentos":[{"nome":"nome em português como na tabela TACO","confianca":"alta|media|baixa"}]}
+Até 3 alimentos. Exemplos: "frango peito grelhado", "banana prata", "arroz branco cozido".`}
+        ]}],
+        generationConfig:{maxOutputTokens:200,temperature:0.1}
+      })});
+      if(!r.ok){
+        const e=await r.json().catch(()=>({}));
+        if(r.status===400||r.status===403){
+          localStorage.removeItem("rf_gemini_key");
+          st.className="bc-status error";st.textContent="Chave inválida. Configure novamente.";
+          results.innerHTML=`<button class="photo-retry" onclick="openPhotoModal('${photoTarget}')">🔑 Configurar chave</button>`;
+          return;
+        }
+        throw new Error(e.error?.message||"HTTP "+r.status);
+      }
+      const data=await r.json();
+      const text=(data.candidates?.[0]?.content?.parts?.[0]?.text||"").trim();
+      const clean=text.replace(/\`\`\`json|\`\`\`/g,"").trim();
+      const parsed=JSON.parse(clean);
+      const alimentos=parsed.alimentos||[];
+      if(!alimentos.length){
+        st.className="bc-status error";st.textContent="Não reconheci. Tente buscar pelo nome.";
+        results.innerHTML=`<button class="photo-retry" onclick="retryPhoto()">📷 Tentar novamente</button>`;
+        return;
+      }
+      st.className="bc-status found";st.textContent=`✓ ${alimentos.length} alimento(s) identificado(s)!`;
+      document.getElementById("photoSub").textContent="Toque para selecionar:";
+      document.getElementById("photoCancelBtn").textContent="Fechar";
+      const items=alimentos.map(a=>{
+        const q=a.nome.toLowerCase().split(" ").filter(w=>w.length>3);
+        const match=TACO.find(f=>q.some(w=>f.name.toLowerCase().includes(w)));
+        return{...a,tacoFood:match||null};
+      });
+      results.innerHTML=items.map(item=>{
+        const f=item.tacoFood;
+        const conf=item.confianca==="alta"?"🟢":item.confianca==="media"?"🟡":"🔴";
+        if(f){
+          return`<div class="photo-result-item" onclick="selectPhotoFood('${f.id}')">
+            <div class="photo-result-emoji">${f.e}</div>
+            <div style="flex:1"><div class="photo-result-name">${f.name} ${conf}</div>
+            <div class="photo-result-meta">${f.cal} kcal | P:${f.p}g C:${f.c}g G:${f.f}g</div></div>
+            <div style="font-size:11px;color:#C40A00;font-weight:600">usar</div>
+          </div>`;
+        }else{
+          return`<div class="photo-result-item" onclick="searchPhotoFood('${item.nome.replace(/'/g,"\'")}')">
+            <div class="photo-result-emoji">🔍</div>
+            <div style="flex:1"><div class="photo-result-name">${item.nome} ${conf}</div>
+            <div class="photo-result-meta">Toque para buscar na base</div></div>
+          </div>`;
+        }
+      }).join("")+`<button class="photo-retry" onclick="retryPhoto()">📷 Outra foto</button>`;
+    }catch(e){
+      console.error("Gemini:",e);
+      st.className="bc-status error";st.textContent="Erro: "+e.message;
+      results.innerHTML=`<button class="photo-retry" onclick="retryPhoto()">📷 Tentar novamente</button>`;
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+function retryPhoto(){
+  document.getElementById("photoPreviewArea").style.display="none";
+  document.getElementById("photoUpload").style.display="block";
+  document.getElementById("photoStatus").className="bc-status";
+  document.getElementById("photoResults").innerHTML="";
+  document.getElementById("photoSub").textContent="Tire uma foto ou escolha da galeria";
+  document.getElementById("photoFile").value="";
+  document.getElementById("photoFile").click();
+}
+
+function selectPhotoFood(id){
+  const f=TACO.find(x=>String(x.id)===String(id));
+  if(!f)return;
+  closePhotoModal();
+  if(photoTarget==='sub'){
+    if(!subDisplayedFoods.find(x=>x.id===f.id))subDisplayedFoods=[f,...subDisplayedFoods];
+    renderSubList();
+    setTimeout(()=>pickSubstituto(f.id),100);
+  }else{
+    if(!displayedFoods.find(x=>x.id===f.id))displayedFoods=[f,...displayedFoods];
+    renderFoods();
+    setTimeout(()=>pickFood(f.id),100);
+  }
+}
+
+function searchPhotoFood(nome){
+  closePhotoModal();
+  if(photoTarget==='sub'){
+    document.getElementById("subInput").value=nome;
+    onSubSearch(nome);
+  }else{
+    document.getElementById("si").value=nome;
+    onSearch(nome);
+  }
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+displayedFoods=TACO.filter(f=>f.t.includes(goal));
+renderFoods();
+
+</script>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('/sw.js?v=2')
+      .then(r=>console.log('SW:',r.scope))
+      .catch(e=>console.warn('SW err:',e));
+  });
+}
+</script>
+
+<!-- MODAL CÓDIGO DE BARRAS -->
+<div class="modal-bg" id="bcModal" onclick="if(event.target===this)closeBarcodeModal()">
+  <div class="modal">
+    <div class="modal-title">Código de barras</div>
+    <div class="modal-sub" id="bcSub">Aponte a câmera para o código do produto</div>
+    <div class="scanner-wrap" id="bcScannerWrap">
+      <div id="bcReader"></div>
+      <div class="scanner-guide"><div class="scanner-guide-box"></div></div>
+    </div>
+    <div class="bc-status" id="bcStatus"></div>
+    <div class="bc-result" id="bcResult" style="background:var(--card2);border:1px solid var(--border2);border-radius:10px;padding:12px;margin-bottom:1rem;display:none;text-align:left">
+      <div style="font-size:11px;color:#C40A00;margin-bottom:2px" id="bcBrand"></div>
+      <div style="font-size:14px;font-weight:600;color:var(--text)" id="bcName"></div>
+      <div style="font-size:12px;color:var(--text3);margin-top:4px" id="bcMeta"></div>
+    </div>
+    <button style="width:100%;padding:12px;background:#C40A00;border:none;border-radius:11px;color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;display:none" id="bcConfirm" onclick="confirmBarcode()">Usar este alimento</button>
+    <button style="width:100%;margin-top:8px;padding:10px;background:var(--modal-cancel);border:none;border-radius:11px;color:var(--modal-cancel-text);font-size:14px;cursor:pointer;font-family:inherit" onclick="closeBarcodeModal()">Cancelar</button>
+  </div>
+</div>
+
+<!-- MODAL FOTO + GEMINI -->
+<div class="modal-bg" id="photoModal" onclick="if(event.target===this)closePhotoModal()">
+  <div class="modal">
+    <div class="modal-title">Identificar por foto</div>
+    <div class="modal-sub" id="photoSub">Tire uma foto ou escolha da galeria</div>
+    <div id="photoPreviewArea" style="display:none;margin-bottom:.75rem;text-align:center">
+      <img id="photoPreview" style="max-width:100%;max-height:180px;border-radius:12px;object-fit:cover"/>
+    </div>
+    <div class="photo-area" id="photoUpload" onclick="document.getElementById('photoFile').click()">
+      <div style="font-size:36px;margin-bottom:.5rem">📷</div>
+      <div style="font-size:13px;color:var(--text3)">Toque para abrir câmera ou galeria</div>
+    </div>
+    <input type="file" id="photoFile" style="display:none" accept="image/*" capture="environment" onchange="handlePhoto(this)"/>
+    <div class="bc-status" id="photoStatus"></div>
+    <div id="photoResults"></div>
+    <button style="width:100%;margin-top:8px;padding:10px;background:var(--modal-cancel);border:none;border-radius:11px;color:var(--modal-cancel-text);font-size:14px;cursor:pointer;font-family:inherit" id="photoCancelBtn" onclick="closePhotoModal()">Cancelar</button>
+  </div>
+</div>
+
+<!-- MODAL CONFIG API -->
+<div class="modal-bg" id="configModal" onclick="if(event.target===this)document.getElementById('configModal').classList.remove('open')">
+  <div class="modal">
+    <div class="modal-title">🔑 Chave Gemini (foto com IA)</div>
+    <div class="modal-sub">Gratuita — 1.500 fotos/dia. Salva só neste dispositivo.</div>
+    <input style="width:100%;border:1px solid var(--input-border);border-radius:10px;padding:10px 14px;font-size:15px;outline:none;font-family:inherit;color:var(--text);background:var(--input-bg);margin-bottom:.75rem" type="password" id="apiKeyInput" placeholder="AIza..."/>
+    <div style="background:var(--bg2);border-radius:10px;padding:12px;margin-bottom:1rem;font-size:12px;color:var(--text3);line-height:1.7">
+      <strong style="color:var(--text)">Como obter gratuitamente:</strong><br/>
+      1. Acesse <strong>aistudio.google.com</strong><br/>
+      2. Clique em <strong>Get API key → Create API key</strong><br/>
+      3. Copie e cole aqui<br/>
+      <span style="color:var(--text4)">✓ Grátis · 1.500 req/dia · Sem cartão</span>
+    </div>
+    <button style="width:100%;padding:12px;background:#C40A00;border:none;border-radius:11px;color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit" onclick="saveApiKey()">Salvar</button>
+    <button style="width:100%;margin-top:8px;padding:10px;background:var(--modal-cancel);border:none;border-radius:11px;color:var(--modal-cancel-text);font-size:14px;cursor:pointer;font-family:inherit" onclick="document.getElementById('configModal').classList.remove('open')">Cancelar</button>
+  </div>
+</div>
+</body>
+</html>
