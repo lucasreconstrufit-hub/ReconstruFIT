@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>reconstruFIT</title>
-<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg3);min-height:100vh;display:flex;justify-content:center;padding:1rem;transition:background .2s}
@@ -1209,18 +1209,30 @@ let bcTarget='orig';
 
 function openBarcodeModal(target){
   bcTarget=target||'orig';
+  // Reset completo do estado
   document.getElementById("bcStatus").className="bc-status";
+  document.getElementById("bcStatus").textContent="";
   document.getElementById("bcResult").style.display="none";
   document.getElementById("bcConfirm").style.display="none";
+  document.getElementById("bcConfirm").style.display="none";
   document.getElementById("bcSub").textContent="Aponte a câmera para o código do produto";
-  document.getElementById("bcReader").innerHTML="";
+  // Restaurar o scanner wrap ao estado original
+  document.getElementById("bcScannerWrap").style.display="";
+  document.getElementById("bcScannerWrap").innerHTML=`
+    <div id="bcReader"></div>
+    <div class="scanner-guide"><div class="scanner-guide-box"></div></div>`;
+  window._bcFood=null;
+  // Limpar input manual
+  var inp=document.getElementById("bcInput");
+  if(inp) inp.value="";
   document.getElementById("bcModal").classList.add("open");
   startScanner();
 }
 
 function startScanner(){
   if(typeof Html5Qrcode==="undefined"){
-    document.getElementById("bcSub").textContent="Leitor não carregado — digite o código abaixo";
+    document.getElementById("bcSub").textContent="Digite ou escaneie o código do produto:";
+    showManualInput();
     return;
   }
   try{
@@ -1262,11 +1274,31 @@ function manualBarcode(){
   document.getElementById("bcScannerWrap").innerHTML="";
   lookupBarcode(code);
 }
+function searchBarcodeManual(){
+  const code=document.getElementById("bcInput")?.value?.trim();
+  if(!code){
+    document.getElementById("bcInput").focus();
+    return;
+  }
+  // Parar câmera se estiver rodando
+  if(bcScanner){try{bcScanner.stop();}catch(e){}bcScanner=null;}
+  document.getElementById("bcScannerWrap").style.display="none";
+  lookupBarcode(code);
+}
 
 function closeBarcodeModal(){
   if(bcScanner){try{bcScanner.stop();}catch(e){}bcScanner=null;}
   document.getElementById("bcModal").classList.remove("open");
+  // Restaurar wrap para estado inicial
   document.getElementById("bcScannerWrap").style.display="";
+  document.getElementById("bcScannerWrap").innerHTML=`
+    <div id="bcReader"></div>
+    <div class="scanner-guide"><div class="scanner-guide-box"></div></div>`;
+  document.getElementById("bcStatus").className="bc-status";
+  document.getElementById("bcStatus").textContent="";
+  document.getElementById("bcResult").style.display="none";
+  document.getElementById("bcConfirm").style.display="none";
+  window._bcFood=null;
 }
 
 async function lookupBarcode(code){
@@ -1591,6 +1623,14 @@ if('serviceWorker' in navigator){
     <div class="scanner-wrap" id="bcScannerWrap">
       <div id="bcReader"></div>
       <div class="scanner-guide"><div class="scanner-guide-box"></div></div>
+    </div>
+    <!-- Input manual sempre disponível como alternativa -->
+    <div style="display:flex;gap:8px;margin-bottom:.75rem">
+      <input id="bcInput" type="number" placeholder="Ou digite o código EAN..." 
+        style="flex:1;border:1px solid var(--input-border);border-radius:10px;padding:10px 14px;font-size:15px;outline:none;font-family:inherit;color:var(--text);background:var(--input-bg)"
+        onkeydown="if(event.key==='Enter')searchBarcodeManual()" autocomplete="off"/>
+      <button id="bcSearchBtn" onclick="searchBarcodeManual()" 
+        style="padding:10px 16px;background:#C40A00;border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Buscar</button>
     </div>
     <div class="bc-status" id="bcStatus"></div>
     <div class="bc-result" id="bcResult" style="background:var(--card2);border:1px solid var(--border2);border-radius:10px;padding:12px;margin-bottom:1rem;display:none;text-align:left">
