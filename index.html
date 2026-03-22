@@ -397,7 +397,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
           Voltar
         </button>
-        <div style="font-size:11px;color:var(--text4)">toque no alimento para trocar</div>
+        <button onclick="editStudentName()" style="display:flex;align-items:center;gap:5px;background:none;border:none;color:var(--text3);font-size:12px;cursor:pointer;font-family:inherit;padding:0">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span id="swapNameLabel">Adicionar nome</span>
+        </button>
       </div>
       <div class="step-card" id="stepOriginal">
         <div class="step-label">substituindo</div>
@@ -485,13 +488,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         </div>
       </div>
 
-      <div class="save-toast" id="saveToast" style="position:sticky;bottom:68px;z-index:10">✓ Salvo nos recentes!</div>
-      <div style="position:sticky;bottom:0;padding:.5rem 0;background:var(--bg)">
-        <button class="save-btn" id="saveBtn" onclick="saveRecent()" disabled>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-          Salvar nos recentes
-        </button>
-      </div>
+      <div class="save-toast" id="saveToast">✓ Salvo nos recentes!</div>
+      <button class="save-btn" id="saveBtn" onclick="saveRecent()" disabled style="margin-top:.75rem;margin-bottom:1rem">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        Salvar nos recentes
+      </button>
     </div>
   </div>
 
@@ -985,7 +986,9 @@ function pickSubstituto(id){
   document.getElementById("subSelected").style.display="block";
   document.getElementById("saveBtn").disabled=false;
   renderCompare();
-  setTimeout(()=>document.getElementById("compareBox").scrollIntoView({behavior:"smooth",block:"nearest"}),100);
+  setTimeout(()=>{
+    document.getElementById("saveBtn").scrollIntoView({behavior:"smooth",block:"center"});
+  },300);
 }
 
 function clearSubstituto(){
@@ -1524,6 +1527,9 @@ function loadStudentName(){
     display.style.borderColor=name?"#C40A00":"";
     display.style.color=name?"#C40A00":"";
   }
+  // Atualizar também o label dentro do swap section
+  const swapLabel=document.getElementById("swapNameLabel");
+  if(swapLabel) swapLabel.textContent=name?`👤 ${name}`:"Adicionar nome";
 }
 function editStudentName(){
   const name=localStorage.getItem("rf_student_name")||"";
@@ -1552,6 +1558,19 @@ function closeNameModal(){document.getElementById("nameModal").classList.remove(
 displayedFoods=TACO;
 renderFoods();
 loadStudentName();
+// Prompt de boas-vindas na primeira abertura
+if(!localStorage.getItem("rf_student_name")){
+  setTimeout(function(){
+    var modal=document.getElementById("nameModal");
+    var title=modal.querySelector(".modal-title");
+    var sub=modal.querySelector(".modal-sub");
+    if(title) title.textContent="👋 Bem-vindo(a)!";
+    if(sub) sub.textContent="Digite seu nome para personalizar o histórico de substituições.";
+    modal.classList.add("open");
+    var inp=document.getElementById("nameInput");
+    if(inp) inp.focus();
+  },800);
+}
 
 </script>
 <script>
