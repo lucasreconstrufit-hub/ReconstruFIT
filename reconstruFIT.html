@@ -1,0 +1,1562 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>reconstruFIT</title>
+<style>
+
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --brand:#C40A00;--r:13px;
+  --bg:#fff;--bg2:#f7f7f7;--bg3:#f2f2f2;
+  --text:#111;--text2:#555;--text3:#888;--text4:#bbb;
+  --border:#e0e0e0;--border2:#eee;--border3:#f5f5f5;
+  --shadow:rgba(0,0,0,.10);
+  --input-bg:#fff;--input-border:#ddd;
+  --modal-bg:#fff;--modal-cancel:#f0f0f0;--modal-cancel-text:#666;
+  --tag-bg:#f0f0f0;--tag-color:#666;
+}
+[data-theme="dark"]{
+  --bg:#111;--bg2:#1e1e1e;--bg3:#0a0a0a;
+  --text:#fff;--text2:#ddd;--text3:#999;--text4:#666;
+  --border:#333;--border2:#2a2a2a;--border3:#222;
+  --shadow:rgba(0,0,0,.6);
+  --input-bg:#222;--input-border:#444;
+  --modal-bg:#1c1c1c;--modal-cancel:#2a2a2a;--modal-cancel-text:#bbb;
+  --tag-bg:#252525;--tag-color:#999;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg3);min-height:100vh;display:flex;justify-content:center;padding:1rem;transition:background .2s}
+.app{max-width:440px;width:100%;background:var(--bg);border-radius:20px;padding:1.25rem 1.25rem 5rem;box-shadow:0 2px 24px var(--shadow);align-self:flex-start}
+.header{display:flex;align-items:center;justify-content:space-between;padding-bottom:1rem;border-bottom:1px solid var(--border3);margin-bottom:1rem}
+.logo-row{display:flex;align-items:center;gap:10px}
+.logo-img{width:36px;height:36px;object-fit:contain}
+.brand{font-size:20px;font-weight:300;color:var(--text);letter-spacing:-.3px}
+.brand b{font-weight:800;color:#C40A00;letter-spacing:.5px}
+.hdr-right{display:flex;align-items:center;gap:8px}
+.icon-btn{background:none;border:1.5px solid var(--border);border-radius:9px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;transition:.15s;color:var(--text3)}
+.icon-btn:hover{border-color:#C40A00;color:#C40A00}
+[data-theme="dark"] .icon-btn{border-color:#444;color:#888}
+.student-pill{display:flex;align-items:center;gap:5px;border:1.5px solid var(--border);border-radius:20px;padding:5px 11px;cursor:pointer;transition:.15s;max-width:135px;overflow:hidden}
+.student-pill:hover{border-color:#C40A00}
+.student-pill.named{border-color:#C40A00;color:#C40A00}
+.sname{font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:inherit}
+[data-theme="dark"] .student-pill{border-color:#444}
+[data-theme="dark"] .student-pill.named{border-color:#C40A00;color:#C40A00}
+.tabs{display:flex;border:1px solid var(--border);border-radius:11px;overflow:hidden;margin-bottom:1.25rem}
+.tab{flex:1;padding:9px 2px;font-size:11.5px;font-weight:500;text-align:center;cursor:pointer;background:var(--bg);color:var(--text3);border:none;font-family:inherit;transition:all .15s;line-height:1.35}
+.tab.on{background:#C40A00;color:#fff;font-weight:700}
+[data-theme="dark"] .tab{background:#1a1a1a;color:#666}
+[data-theme="dark"] .tab.on{background:#C40A00;color:#fff}
+.sbox{background:var(--bg);border:1px solid var(--input-border);border-radius:var(--r);padding:11px 14px;display:flex;align-items:center;gap:9px;transition:border-color .15s;margin-bottom:.625rem}
+.sbox:focus-within{border-color:#C40A00}
+.sbox input{flex:1;border:none;outline:none;font-size:15px;background:transparent;color:var(--text);font-family:inherit}
+.sbox input::placeholder{color:var(--text4)}
+[data-theme="dark"] .sbox{background:#1e1e1e;border-color:#3a3a3a}
+[data-theme="dark"] .sbox input{color:#fff}
+.slabel{font-size:11px;font-weight:600;color:var(--text4);letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px;display:block}
+.ftags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:.75rem}
+.ftag{padding:5px 11px;border-radius:12px;font-size:12px;cursor:pointer;border:1px solid var(--border);background:var(--tag-bg);color:var(--tag-color);transition:.15s;white-space:nowrap;font-family:inherit}
+.ftag.on{background:#C40A00;color:#fff;border-color:#C40A00;font-weight:600}
+[data-theme="dark"] .ftag{background:#252525;border-color:#3a3a3a;color:#888}
+[data-theme="dark"] .ftag.on{background:#C40A00;border-color:#C40A00;color:#fff}
+.fcard{background:var(--bg);border:1px solid var(--border2);border-radius:var(--r);padding:12px 14px;margin-bottom:7px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:all .15s}
+.fcard:hover{border-color:#ccc;background:#fafafa}
+[data-theme="dark"] .fcard{background:#1e1e1e;border-color:#2e2e2e}
+[data-theme="dark"] .fcard:hover{border-color:#555;background:#222}
+.femoji{font-size:24px;width:42px;height:42px;display:flex;align-items:center;justify-content:center;background:var(--bg2);border-radius:10px;flex-shrink:0}
+[data-theme="dark"] .femoji{background:#2a2a2a}
+.fname{font-size:14px;font-weight:500;color:var(--text);line-height:1.3}
+.fmeta{font-size:11px;color:var(--text3);margin-top:2px}
+.fcal{font-size:14px;font-weight:700;color:#C40A00;flex-shrink:0;text-align:right;line-height:1.2}
+.fcal small{font-size:10px;font-weight:400;color:var(--text4);display:block}
+.scard{background:var(--bg);border:1px solid var(--border2);border-radius:var(--r);padding:11px 13px;margin-bottom:7px;display:flex;align-items:center;gap:11px;cursor:pointer;transition:.15s}
+.scard:hover{border-color:#ccc;background:#fafafa}
+[data-theme="dark"] .scard{background:#1e1e1e;border-color:#2e2e2e}
+[data-theme="dark"] .scard:hover{border-color:#555;background:#222}
+.sc-name{font-size:14px;font-weight:500;color:var(--text);flex:1;line-height:1.3}
+.sc-meta{font-size:11px;color:var(--text3);margin-top:1px}
+.sc-diff{font-size:12px;font-weight:700;flex-shrink:0;text-align:right;white-space:nowrap}
+.sc-diff.neg{color:#0a8a3c}
+.sc-diff.pos{color:#C40A00}
+.sc-diff.zero{color:var(--text4)}
+.more-btn{width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;background:var(--bg2);color:var(--text3);font-size:13px;cursor:pointer;font-family:inherit;transition:.15s;margin-top:2px}
+.more-btn:hover{border-color:#C40A00;color:#C40A00}
+[data-theme="dark"] .more-btn{background:#1a1a1a;border-color:#333;color:#777}
+.banner{background:#fff8f8;border:1px solid #f0b0b0;border-radius:11px;padding:10px 14px;margin-bottom:.875rem;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.banner-info{display:flex;align-items:center;gap:8px;flex:1;min-width:0}
+.banner-emoji{font-size:22px;flex-shrink:0}
+.banner-text{font-size:13px;color:#C40A00;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.banner-btn{font-size:12px;color:#C40A00;cursor:pointer;text-decoration:underline;flex-shrink:0;background:none;border:none;font-family:inherit;padding:0}
+[data-theme="dark"] .banner{background:#2d1515;border-color:#7a2020}
+[data-theme="dark"] .banner-text{color:#ff8080}
+[data-theme="dark"] .banner-btn{color:#ff8080}
+.swap-divider{display:flex;align-items:center;margin:.875rem 0}
+.swap-line{flex:1;height:1px;background:var(--border3)}
+[data-theme="dark"] .swap-line{background:#2a2a2a}
+.swap-icon{width:34px;height:34px;background:#fff8f8;border:1px solid #f0b0b0;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+[data-theme="dark"] .swap-icon{background:#2d1515;border-color:#7a2020}
+.qbox{background:var(--bg);border:1.5px solid #C40A00;border-radius:var(--r);padding:13px 15px;margin-bottom:.875rem}
+[data-theme="dark"] .qbox{background:#1a1a1a}
+.qrow{display:flex;align-items:center;gap:10px}
+.stepper{display:flex;align-items:center;border:1px solid var(--border);border-radius:10px;overflow:hidden}
+[data-theme="dark"] .stepper{border-color:#444}
+.sbtn{width:38px;height:38px;display:flex;align-items:center;justify-content:center;background:var(--bg2);border:none;cursor:pointer;font-size:22px;color:var(--text2);font-family:inherit;transition:.15s;user-select:none}
+.sbtn:hover{background:#fff0f0;color:#C40A00}
+.sbtn:active{background:#C40A00;color:#fff}
+[data-theme="dark"] .sbtn{background:#2a2a2a;color:#ccc}
+[data-theme="dark"] .sbtn:hover{background:#C40A00;color:#fff}
+.sinput{width:62px;height:38px;border:none;border-left:1px solid var(--border);border-right:1px solid var(--border);text-align:center;font-size:16px;font-weight:700;background:var(--bg);color:var(--text);outline:none;font-family:inherit}
+[data-theme="dark"] .sinput{background:#222;color:#fff;border-color:#444}
+.qunit{font-size:13px;color:var(--text3)}
+.qsum{flex:1;text-align:right}
+.qkcal{font-size:24px;font-weight:800;color:#C40A00;line-height:1}
+.qkcal-lbl{font-size:11px;color:var(--text4);margin-top:2px}
+.qmacros{display:flex;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border3)}
+[data-theme="dark"] .qmacros{border-top-color:#2a2a2a}
+.qm{flex:1;text-align:center}
+.qmv{font-size:15px;font-weight:700;color:var(--text)}
+.qmn{font-size:10px;color:var(--text4);margin-top:2px}
+.cr-box{background:var(--bg2);border-radius:12px;padding:14px;margin-top:.875rem}
+[data-theme="dark"] .cr-box{background:#1a1a1a}
+.cr-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--text4);margin-bottom:12px}
+.cr-row{margin-bottom:12px}
+.cr-lblrow{display:flex;justify-content:space-between;font-size:11.5px;color:var(--text3);margin-bottom:4px}
+.cr-bar{height:8px;border-radius:4px;background:var(--bg3);overflow:hidden;position:relative;margin-bottom:3px}
+[data-theme="dark"] .cr-bar{background:#2a2a2a}
+.cr-fill{height:100%;border-radius:4px;transition:width .4s ease}
+.fill-a{background:#C40A00}
+.fill-b{background:#1a9c5c}
+.cr-legend{display:flex;gap:12px;margin-top:8px;flex-wrap:wrap}
+.cr-leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)}
+.cr-leg-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.cr-summary{margin-top:12px;padding:11px 14px;border-radius:10px;text-align:center}
+.cr-summary.save{background:#e6f9f0;color:#0a6640}
+.cr-summary.gain{background:#fff0f0;color:#9a0000}
+.cr-summary.same{background:#f5f5f5;color:#777}
+[data-theme="dark"] .cr-summary.save{background:#0d2d1d;color:#4fc98a}
+[data-theme="dark"] .cr-summary.gain{background:#2d1515;color:#ff8080}
+[data-theme="dark"] .cr-summary.same{background:#222;color:#888}
+.cr-sum-val{font-size:24px;font-weight:800;line-height:1}
+.cr-sum-lbl{font-size:12px;opacity:.9;margin-top:3px}
+.impact-rows{margin-top:10px;border-top:1px solid var(--border2);padding-top:10px}
+[data-theme="dark"] .impact-rows{border-top-color:#2a2a2a}
+.impact-row{display:flex;justify-content:space-between;align-items:baseline;font-size:12px;color:var(--text3);padding:3px 0}
+.impact-row b{color:var(--text);font-weight:600}
+.btn-brand{width:100%;padding:13px;background:#C40A00;border:none;border-radius:11px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:.15s}
+.btn-brand:hover{background:#a30800}
+.btn-brand:active{transform:scale(.98)}
+.btn-ghost{width:100%;padding:11px;background:var(--bg2);border:1px solid var(--border);border-radius:11px;color:var(--text3);font-size:14px;cursor:pointer;font-family:inherit;transition:.15s;margin-top:8px}
+.btn-ghost:hover{border-color:#C40A00;color:#C40A00}
+[data-theme="dark"] .btn-ghost{background:#1a1a1a;border-color:#333;color:#777}
+.log-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg);border:1px solid var(--border2);border-radius:var(--r);margin-bottom:7px}
+[data-theme="dark"] .log-item{background:#1e1e1e;border-color:#2e2e2e}
+.li-emoji{font-size:22px;flex-shrink:0}
+.li-body{flex:1;min-width:0}
+.li-name{font-size:13px;font-weight:500;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.li-sub{font-size:11px;color:var(--text3);margin-top:1px}
+.li-kcal{font-size:14px;font-weight:700;color:#C40A00;flex-shrink:0;text-align:right}
+.li-kcal small{font-size:10px;font-weight:400;color:var(--text4);display:block;text-align:right}
+.li-rm{background:none;border:none;color:var(--text4);cursor:pointer;font-size:20px;padding:0 2px;line-height:1;flex-shrink:0;transition:.15s;font-family:inherit}
+.li-rm:hover{color:#C40A00}
+.totals-bar{background:var(--bg2);border-radius:12px;padding:12px 14px;margin-bottom:.875rem}
+[data-theme="dark"] .totals-bar{background:#1a1a1a}
+.tb-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px}
+.tb-label{font-size:12px;color:var(--text3)}
+.tb-kcal{font-size:24px;font-weight:800;color:#C40A00;line-height:1}
+.tb-macros{display:flex;gap:8px;margin-top:8px}
+.tb-m{flex:1;text-align:center}
+.tb-mv{font-size:15px;font-weight:700;color:var(--text);display:block}
+.tb-mn{font-size:10px;color:var(--text4)}
+.prog-wrap{margin-top:8px}
+.prog-meta{display:flex;justify-content:space-between;font-size:11px;color:var(--text3);margin-bottom:4px}
+.prog-track{height:7px;background:var(--bg3);border-radius:4px;overflow:hidden}
+[data-theme="dark"] .prog-track{background:#2a2a2a}
+.prog-fill{height:100%;background:#C40A00;border-radius:4px;transition:width .35s ease}
+.prog-fill.over{background:#ff4444}
+.goal-box{display:flex;align-items:center;gap:8px;background:var(--bg2);border-radius:11px;padding:10px 14px;margin-bottom:.875rem}
+[data-theme="dark"] .goal-box{background:#1a1a1a}
+.goal-box label{font-size:12px;color:var(--text3);white-space:nowrap;flex-shrink:0}
+.goal-box input{flex:1;border:1px solid var(--input-border);border-radius:8px;padding:7px 10px;font-size:14px;font-weight:600;background:var(--input-bg);color:var(--text);outline:none;font-family:inherit;transition:.15s;min-width:0}
+.goal-box input:focus{border-color:#C40A00}
+[data-theme="dark"] .goal-box input{background:#222;border-color:#444;color:#fff}
+.goal-unit{font-size:12px;color:var(--text3);flex-shrink:0}
+.divider{border:none;border-top:1px solid var(--border3);margin:.875rem 0}
+.hist-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem}
+.pf-grid{display:flex;flex-direction:column;gap:11px}
+.pf-row{display:flex;gap:10px}
+.pf-group{flex:1;display:flex;flex-direction:column;gap:5px}
+.pf-label{font-size:11px;font-weight:600;color:var(--text4);text-transform:uppercase;letter-spacing:.05em}
+.pf-input{border:1px solid var(--input-border);border-radius:9px;padding:10px 12px;font-size:14px;background:var(--input-bg);color:var(--text);outline:none;font-family:inherit;transition:.15s;width:100%}
+.pf-input:focus{border-color:#C40A00}
+[data-theme="dark"] .pf-input{background:#1e1e1e;border-color:#3a3a3a;color:#fff}
+[data-theme="dark"] .pf-input option{background:#1e1e1e}
+.plan-result{background:var(--bg2);border-radius:12px;padding:16px;margin-top:1rem}
+[data-theme="dark"] .plan-result{background:#1a1a1a}
+.pr-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:12px}
+.plan-stat{display:flex;justify-content:space-between;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--border3)}
+[data-theme="dark"] .plan-stat{border-bottom-color:#222}
+.plan-stat:last-child{border-bottom:none}
+.ps-lbl{font-size:13px;color:var(--text3)}
+.ps-val{font-size:15px;font-weight:700;color:var(--text)}
+.ps-val.brand{color:#C40A00;font-size:20px}
+.macro-chips{display:flex;gap:6px;margin-top:10px}
+.mchip{flex:1;text-align:center;background:var(--bg3);border-radius:9px;padding:9px 4px}
+[data-theme="dark"] .mchip{background:#252525}
+.mchip-val{font-size:16px;font-weight:700}
+.mchip-lbl{font-size:10px;color:var(--text4);margin-top:2px}
+.plan-tip{background:#fff8f8;border:1px solid #f0c0c0;border-radius:10px;padding:10px 13px;margin-top:10px;font-size:12px;color:#8a0000;line-height:1.5}
+[data-theme="dark"] .plan-tip{background:#2d1515;border-color:#7a2020;color:#ff9090}
+.hcard{background:var(--bg);border:1px solid var(--border2);border-radius:var(--r);padding:12px 14px;margin-bottom:8px}
+[data-theme="dark"] .hcard{background:#1e1e1e;border-color:#2e2e2e}
+.hcard-top{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.hstudent{font-size:11px;font-weight:700;color:#C40A00}
+.hdate{font-size:11px;color:var(--text4);margin-left:auto}
+.hfood-row{display:flex;align-items:center;gap:8px;padding:5px 0}
+.hfood-emoji{font-size:20px;flex-shrink:0}
+.hfood-info{flex:1;min-width:0}
+.hfood-name{font-size:13px;font-weight:500;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hfood-meta{font-size:11px;color:var(--text3)}
+.harrow{display:flex;align-items:center;gap:6px;padding:3px 0;font-size:13px;color:#C40A00}
+.hcard-foot{display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding-top:8px;border-top:1px solid var(--border3)}
+[data-theme="dark"] .hcard-foot{border-top-color:#222}
+.hdiff{font-size:12px;font-weight:700;padding:3px 10px;border-radius:8px}
+.hdiff.save{background:#e6f9f0;color:#0a6640}
+.hdiff.over{background:#fff0f0;color:#9a0000}
+.hdiff.same{background:#f5f5f5;color:#777}
+[data-theme="dark"] .hdiff.save{background:#0d2d1d;color:#4fc98a}
+[data-theme="dark"] .hdiff.over{background:#2d1515;color:#ff8080}
+[data-theme="dark"] .hdiff.same{background:#222;color:#666}
+.hdel{background:none;border:none;font-size:12px;color:var(--text4);cursor:pointer;font-family:inherit;transition:.15s;padding:0}
+.hdel:hover{color:#C40A00}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:flex-end;justify-content:center;z-index:999;padding:0 1rem 1rem;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-bg.open{opacity:1;pointer-events:all}
+.modal{background:var(--modal-bg);border-radius:20px;padding:1.5rem;width:100%;max-width:440px;transform:translateY(40px);transition:transform .25s ease;max-height:80vh;overflow-y:auto}
+.modal-bg.open .modal{transform:translateY(0)}
+.modal-title{font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px}
+.modal-sub{font-size:13px;color:var(--text3);margin-bottom:1rem;line-height:1.5}
+.modal-input{width:100%;border:1px solid var(--input-border);border-radius:10px;padding:12px 14px;font-size:16px;outline:none;font-family:inherit;color:var(--text);background:var(--input-bg);margin-bottom:.75rem;transition:.15s}
+.modal-input:focus{border-color:#C40A00}
+[data-theme="dark"] .modal-input{background:#222;border-color:#444;color:#fff}
+.modal-btn{width:100%;padding:13px;background:#C40A00;border:none;border-radius:11px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:.15s}
+.modal-btn:hover{background:#a30800}
+.modal-cancel{width:100%;margin-top:8px;padding:11px;background:var(--modal-cancel);border:none;border-radius:11px;color:var(--modal-cancel-text);font-size:14px;cursor:pointer;font-family:inherit}
+.empty{text-align:center;padding:2rem 1rem;color:var(--text4)}
+.empty-icon{font-size:38px;margin-bottom:.75rem}
+.empty p{font-size:13px;line-height:1.5}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#111;color:#fff;padding:11px 20px;border-radius:22px;font-size:13px;z-index:9999;white-space:nowrap;opacity:0;transition:opacity .22s,transform .22s;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,.25)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+[data-theme="dark"] .toast{background:#fff;color:#111}
+
+</style>
+</head>
+<body>
+<div class="app">
+<!-- HEADER -->
+<div class="header">
+  <div class="logo-row">
+    <img class="logo-img" src="data:image/png;base64,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AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAqC3J3wHXJv++Cqu0SAAAAABJRU5ErkJggg==" alt="logo"/>
+    <div class="brand">reconstru<b>FIT</b></div>
+  </div>
+  <div class="hdr-right">
+    <div class="student-pill" id="studentPill" onclick="openNameModal()">
+      <span style="font-size:14px">👤</span>
+      <span class="sname" id="sNameEl">Adicionar nome</span>
+    </div>
+    <button class="icon-btn" id="themeBtn" onclick="toggleTheme()">🌙</button>
+  </div>
+</div>
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab on" data-tab="sub" onclick="go('sub')">🔄<br>Substituir</button>
+  <button class="tab" data-tab="log" onclick="go('log')">📋<br>Diário</button>
+  <button class="tab" data-tab="plan" onclick="go('plan')">🎯<br>Plano</button>
+  <button class="tab" data-tab="hist" onclick="go('hist')">🕑<br>Histórico</button>
+</div>
+<!-- TAB: SUBSTITUIÇÕES -->
+<div id="tab-sub">
+  <span class="slabel">Passo 1 — Alimento original</span>
+  <div class="sbox" id="sb1">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input id="s1" type="search" placeholder="Buscar alimento TACO…" autocomplete="off" autocorrect="off" oninput="onS1()"/>
+  </div>
+  <div id="cats1" class="ftags"></div>
+  <div id="list1"></div>
+  <div id="qb1" class="qbox" style="display:none">
+    <div class="qrow">
+      <div class="stepper">
+        <button class="sbtn" onpointerdown="startAdj(1,-1)" onpointerup="stopAdj()" onpointercancel="stopAdj()">−</button>
+        <input class="sinput" id="q1" type="number" value="100" min="1" max="2000" oninput="calcQ(1)"/>
+        <button class="sbtn" onpointerdown="startAdj(1,1)" onpointerup="stopAdj()" onpointercancel="stopAdj()">+</button>
+      </div>
+      <span class="qunit">g</span>
+      <div class="qsum"><div class="qkcal" id="qk1">—</div><div class="qkcal-lbl">kcal</div></div>
+    </div>
+    <div class="qmacros">
+      <div class="qm"><div class="qmv" id="qp1">—</div><div class="qmn">Proteína</div></div>
+      <div class="qm"><div class="qmv" id="qc1">—</div><div class="qmn">Carboidrato</div></div>
+      <div class="qm"><div class="qmv" id="qf1">—</div><div class="qmn">Gordura</div></div>
+    </div>
+  </div>
+  <div id="swDiv" class="swap-divider" style="display:none">
+    <div class="swap-line"></div><div class="swap-icon">🔁</div><div class="swap-line"></div>
+  </div>
+  <div id="step2" style="display:none">
+    <div class="banner" id="ban1">
+      <div class="banner-info"><span class="banner-emoji" id="ban1e"></span><span class="banner-text" id="ban1t"></span></div>
+      <button class="banner-btn" onclick="clearA()">Trocar</button>
+    </div>
+    <span class="slabel">Passo 2 — Escolha o substituto</span>
+    <div class="sbox" id="sb2">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input id="s2" type="search" placeholder="Buscar substituto…" autocomplete="off" autocorrect="off" oninput="onS2()"/>
+    </div>
+    <div id="cats2" class="ftags"></div>
+    <div id="list2"></div>
+  </div>
+  <div id="cmpWrap" style="display:none">
+    <div class="banner" id="ban2" style="margin-top:.875rem">
+      <div class="banner-info"><span class="banner-emoji" id="ban2e"></span><span class="banner-text" id="ban2t"></span></div>
+      <button class="banner-btn" onclick="clearB()">Trocar</button>
+    </div>
+    <div id="qb2" class="qbox">
+      <div class="qrow">
+        <div class="stepper">
+          <button class="sbtn" onpointerdown="startAdj(2,-1)" onpointerup="stopAdj()" onpointercancel="stopAdj()">−</button>
+          <input class="sinput" id="q2" type="number" value="100" min="1" max="2000" oninput="calcQ(2)"/>
+          <button class="sbtn" onpointerdown="startAdj(2,1)" onpointerup="stopAdj()" onpointercancel="stopAdj()">+</button>
+        </div>
+        <span class="qunit">g</span>
+        <div class="qsum"><div class="qkcal" id="qk2">—</div><div class="qkcal-lbl">kcal</div></div>
+      </div>
+      <div class="qmacros">
+        <div class="qm"><div class="qmv" id="qp2">—</div><div class="qmn">Proteína</div></div>
+        <div class="qm"><div class="qmv" id="qc2">—</div><div class="qmn">Carboidrato</div></div>
+        <div class="qm"><div class="qmv" id="qf2">—</div><div class="qmn">Gordura</div></div>
+      </div>
+    </div>
+    <div id="cmpResult"></div>
+    <button class="btn-brand" onclick="saveSub()" style="margin-top:.875rem">💾 Salvar no Histórico</button>
+    <button class="btn-ghost" onclick="clearSub()">✖ Nova substituição</button>
+  </div>
+</div>
+<!-- TAB: DIÁRIO -->
+<div id="tab-log" style="display:none">
+  <div class="goal-box">
+    <label for="dgInput">Meta diária</label>
+    <input id="dgInput" type="number" placeholder="kcal" min="500" max="6000" oninput="onGoalChange()"/>
+    <span class="goal-unit">kcal/dia</span>
+  </div>
+  <div class="totals-bar" id="totBar" style="display:none">
+    <div class="tb-header"><span class="tb-label">Consumido hoje</span><span class="tb-kcal" id="tbKcal">0</span></div>
+    <div id="progSection" style="display:none">
+      <div class="prog-meta"><span id="progLbl"></span><span id="progGoalLbl"></span></div>
+      <div class="prog-track"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+    </div>
+    <div class="tb-macros">
+      <div class="tb-m"><span class="tb-mv" id="tbP">0g</span><span class="tb-mn">Prot</span></div>
+      <div class="tb-m"><span class="tb-mv" id="tbC">0g</span><span class="tb-mn">Carb</span></div>
+      <div class="tb-m"><span class="tb-mv" id="tbF">0g</span><span class="tb-mn">Gord</span></div>
+    </div>
+  </div>
+  <span class="slabel">Adicionar ao diário</span>
+  <div class="sbox" id="sbLog">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input id="sLog" type="search" placeholder="Buscar alimento…" autocomplete="off" autocorrect="off" oninput="onSLog()"/>
+  </div>
+  <div id="listLog"></div>
+  <div id="qbLog" class="qbox" style="display:none">
+    <div class="qrow">
+      <div class="stepper">
+        <button class="sbtn" onpointerdown="startAdj(0,-1)" onpointerup="stopAdj()" onpointercancel="stopAdj()">−</button>
+        <input class="sinput" id="qLog" type="number" value="100" min="1" max="3000" oninput="calcQLog()"/>
+        <button class="sbtn" onpointerdown="startAdj(0,1)" onpointerup="stopAdj()" onpointercancel="stopAdj()">+</button>
+      </div>
+      <span class="qunit">g</span>
+      <div class="qsum"><div class="qkcal" id="qkLog">—</div><div class="qkcal-lbl">kcal</div></div>
+    </div>
+    <button class="btn-brand" onclick="addLog()" style="margin-top:10px">+ Adicionar</button>
+  </div>
+  <div class="divider"></div>
+  <div class="hist-hdr">
+    <span class="slabel" style="margin-bottom:0">Hoje</span>
+    <button class="hdel" onclick="clearLog()">Limpar tudo</button>
+  </div>
+  <div id="logList"></div>
+</div>
+<!-- TAB: PLANO -->
+<div id="tab-plan" style="display:none">
+  <div class="pf-grid">
+    <div class="pf-row">
+      <div class="pf-group"><span class="pf-label">Peso atual (kg)</span><input class="pf-input" id="pW" type="number" placeholder="75" step="0.1"/></div>
+      <div class="pf-group"><span class="pf-label">Peso alvo (kg)</span><input class="pf-input" id="pT" type="number" placeholder="65" step="0.1"/></div>
+    </div>
+    <div class="pf-row">
+      <div class="pf-group"><span class="pf-label">Altura (cm)</span><input class="pf-input" id="pH" type="number" placeholder="165"/></div>
+      <div class="pf-group"><span class="pf-label">Idade</span><input class="pf-input" id="pA" type="number" placeholder="30"/></div>
+    </div>
+    <div class="pf-row">
+      <div class="pf-group"><span class="pf-label">Sexo</span><select class="pf-input" id="pS"><option value="f">Feminino</option><option value="m">Masculino</option></select></div>
+      <div class="pf-group"><span class="pf-label">Atividade física</span><select class="pf-input" id="pAct"><option value="1.2">Sedentária</option><option value="1.375">Leve (1-3×/sem)</option><option value="1.55" selected>Moderada (3-5×/sem)</option><option value="1.725">Intensa (6-7×/sem)</option><option value="1.9">Muito intensa</option></select></div>
+    </div>
+    <div class="pf-group"><span class="pf-label">Objetivo</span><select class="pf-input" id="pObj"><option value="lose_fast">Perda rápida (−1 kg/semana)</option><option value="lose_mod" selected>Perda moderada (−0,5 kg/semana)</option><option value="lose_slow">Perda lenta (−0,25 kg/semana)</option><option value="maintain">Manutenção</option><option value="gain">Ganho de massa</option></select></div>
+    <div class="pf-row"><div class="pf-group"><span class="pf-label">Prazo (semanas)</span><input class="pf-input" id="pWk" type="number" placeholder="12" min="1"/></div></div>
+    <button class="btn-brand" onclick="calcPlan()">Calcular Plano</button>
+  </div>
+  <div id="planRes"></div>
+</div>
+<!-- TAB: HISTÓRICO -->
+<div id="tab-hist" style="display:none">
+  <div class="hist-hdr">
+    <span class="slabel" style="margin-bottom:0">Substituições salvas</span>
+    <button class="hdel" onclick="clearHist()">Apagar tudo</button>
+  </div>
+  <div id="histList" style="margin-top:.75rem"></div>
+</div>
+</div><!-- /app -->
+<!-- MODAL NOME -->
+<div class="modal-bg" id="nameModal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-title">👤 Seu nome</div>
+    <div class="modal-sub">Fica salvo só neste dispositivo e aparece no histórico.</div>
+    <input class="modal-input" id="nameIn" type="text" placeholder="Digite seu nome…" onkeydown="if(event.key==='Enter')saveName()"/>
+    <button class="modal-btn" onclick="saveName()">Salvar</button>
+    <button class="modal-cancel" onclick="closeModal()">Cancelar</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const TACO=[
+  {e:"🍚",n:"Arroz, integral, cozido",cal:124,p:2.6,c:25.8,f:1.0,g:"carboidrato"},
+  {e:"🍚",n:"Arroz, integral, cru",cal:360,p:7.3,c:77.5,f:1.9,g:"carboidrato"},
+  {e:"🍚",n:"Arroz, tipo 1, cozido",cal:128,p:2.5,c:28.1,f:0.2,g:"carboidrato"},
+  {e:"🍚",n:"Arroz, tipo 1, cru",cal:358,p:7.2,c:78.8,f:0.3,g:"carboidrato"},
+  {e:"🍚",n:"Arroz, tipo 2, cozido",cal:130,p:2.6,c:28.2,f:0.4,g:"carboidrato"},
+  {e:"🍚",n:"Arroz, tipo 2, cru",cal:358,p:7.2,c:78.9,f:0.3,g:"carboidrato"},
+  {e:"🌾",n:"Aveia, flocos, crua",cal:394,p:13.9,c:66.6,f:8.5,g:"carboidrato"},
+  {e:"🍪",n:"Biscoito, doce, maisena",cal:443,p:8.1,c:75.2,f:12.0,g:"carboidrato"},
+  {e:"🍪",n:"Biscoito, doce, recheado com chocolate",cal:472,p:6.4,c:70.5,f:19.6,g:"carboidrato"},
+  {e:"🍪",n:"Biscoito, doce, recheado com morango",cal:471,p:5.7,c:71.0,f:19.6,g:"carboidrato"},
+  {e:"🍪",n:"Biscoito, doce, wafer, recheado de chocolate",cal:502,p:5.6,c:67.5,f:24.7,g:"carboidrato"},
+  {e:"🍪",n:"Biscoito, doce, wafer, recheado de morango",cal:513,p:4.5,c:67.4,f:26.4,g:"carboidrato"},
+  {e:"🍪",n:"Biscoito, salgado, cream cracker",cal:432,p:10.1,c:68.7,f:14.4,g:"carboidrato"},
+  {e:"🎂",n:"Bolo, mistura para",cal:419,p:6.2,c:84.7,f:6.1,g:"carboidrato"},
+  {e:"🎂",n:"Bolo, pronto, aipim",cal:324,p:4.4,c:47.9,f:12.7,g:"carboidrato"},
+  {e:"🎂",n:"Bolo, pronto, chocolate",cal:410,p:6.2,c:54.7,f:18.5,g:"carboidrato"},
+  {e:"🎂",n:"Bolo, pronto, coco",cal:333,p:5.7,c:52.3,f:11.3,g:"carboidrato"},
+  {e:"🌽",n:"Bolo, pronto, milho",cal:311,p:4.8,c:45.1,f:12.4,g:"carboidrato"},
+  {e:"🌾",n:"Canjica, branca, crua",cal:358,p:7.2,c:78.1,f:1.0,g:"carboidrato"},
+  {e:"🥛",n:"Canjica, com leite integral",cal:112,p:2.4,c:23.6,f:1.2,g:"carboidrato"},
+  {e:"🌽",n:"Cereais, milho, flocos, com sal",cal:370,p:7.3,c:80.8,f:1.6,g:"carboidrato"},
+  {e:"🌽",n:"Cereais, milho, flocos, sem sal",cal:363,p:6.9,c:80.4,f:1.2,g:"carboidrato"},
+  {e:"🌽",n:"Cereais, mingau, milho, infantil",cal:394,p:6.4,c:87.3,f:1.1,g:"carboidrato"},
+  {e:"🌾",n:"Cereais, mistura para vitamina, trigo, cevada e aveia",cal:381,p:8.9,c:81.6,f:2.1,g:"carboidrato"},
+  {e:"🌽",n:"Cereal matinal, milho",cal:365,p:7.2,c:83.8,f:1.0,g:"carboidrato"},
+  {e:"🌽",n:"Cereal matinal, milho, açúcar",cal:377,p:4.7,c:88.8,f:0.7,g:"carboidrato"},
+  {e:"🍚",n:"Creme de arroz, pó",cal:386,p:7.0,c:83.9,f:1.2,g:"carboidrato"},
+  {e:"🌽",n:"Creme de milho, pó",cal:333,p:4.8,c:86.1,f:1.6,g:"carboidrato"},
+  {e:"🌽",n:"Curau, milho verde",cal:78,p:2.4,c:13.9,f:1.6,g:"carboidrato"},
+  {e:"🌽",n:"Curau, milho verde, mistura para",cal:402,p:2.2,c:79.8,f:13.4,g:"carboidrato"},
+  {e:"🍚",n:"Farinha, de arroz, enriquecida",cal:363,p:1.3,c:85.5,f:0.3,g:"carboidrato"},
+  {e:"🌾",n:"Farinha, de centeio, integral",cal:336,p:12.5,c:73.3,f:1.8,g:"carboidrato"},
+  {e:"🌾",n:"Farinha, de milho, amarela",cal:351,p:7.2,c:79.1,f:1.5,g:"carboidrato"},
+  {e:"🌾",n:"Farinha, de rosca",cal:371,p:11.4,c:75.8,f:1.5,g:"carboidrato"},
+  {e:"🌾",n:"Farinha, de trigo",cal:360,p:9.8,c:75.1,f:1.4,g:"carboidrato"},
+  {e:"🌾",n:"Farinha, láctea, de cereais",cal:415,p:11.9,c:77.8,f:5.8,g:"carboidrato"},
+  {e:"🌾",n:"Lasanha, massa fresca, cozida",cal:164,p:5.8,c:32.5,f:1.2,g:"carboidrato"},
+  {e:"🌾",n:"Lasanha, massa fresca, crua",cal:220,p:7.0,c:45.1,f:1.3,g:"carboidrato"},
+  {e:"🌾",n:"Macarrão, instantâneo",cal:436,p:8.8,c:62.4,f:17.2,g:"carboidrato"},
+  {e:"🌾",n:"Macarrão, trigo, cru",cal:371,p:10.0,c:77.9,f:1.3,g:"carboidrato"},
+  {e:"🥚",n:"Macarrão, trigo, cru, com ovos",cal:371,p:10.3,c:76.6,f:2.0,g:"carboidrato"},
+  {e:"🌽",n:"Milho, amido, cru",cal:361,p:0.6,c:87.1,f:0.0,g:"carboidrato"},
+  {e:"🌽",n:"Milho, fubá, cru",cal:354,p:7.2,c:78.9,f:1.9,g:"carboidrato"},
+  {e:"🌽",n:"Milho, verde, cru",cal:138,p:6.6,c:28.6,f:0.6,g:"carboidrato"},
+  {e:"🌽",n:"Milho, verde, enlatado, drenado",cal:98,p:3.2,c:17.1,f:2.4,g:"carboidrato"},
+  {e:"🌾",n:"Mingau tradicional, pó",cal:373,p:0.6,c:89.3,f:0.4,g:"carboidrato"},
+  {e:"🌾",n:"Pamonha, barra para cozimento, pré-cozida",cal:171,p:2.6,c:30.7,f:4.8,g:"carboidrato"},
+  {e:"🌾",n:"Pão, aveia, forma",cal:343,p:12.3,c:59.6,f:5.7,g:"carboidrato"},
+  {e:"🌱",n:"Pão, de soja",cal:309,p:11.3,c:56.5,f:3.6,g:"carboidrato"},
+  {e:"🌾",n:"Pão, glúten, forma",cal:253,p:12.0,c:44.1,f:2.7,g:"carboidrato"},
+  {e:"🌽",n:"Pão, milho, forma",cal:292,p:8.3,c:56.4,f:3.1,g:"carboidrato"},
+  {e:"🌾",n:"Pão, trigo, forma, integral",cal:253,p:9.4,c:49.9,f:3.7,g:"carboidrato"},
+  {e:"🌾",n:"Pão, trigo, francês",cal:300,p:8.0,c:58.6,f:3.1,g:"carboidrato"},
+  {e:"🌾",n:"Pão, trigo, sovado",cal:311,p:8.4,c:61.5,f:2.8,g:"carboidrato"},
+  {e:"🥩",n:"Pastel, de carne, cru",cal:289,p:10.7,c:42.0,f:8.8,g:"carboidrato"},
+  {e:"🥩",n:"Pastel, de carne, frito",cal:388,p:10.1,c:43.8,f:20.1,g:"carboidrato"},
+  {e:"🧀",n:"Pastel, de queijo, cru",cal:308,p:9.9,c:45.9,f:9.6,g:"carboidrato"},
+  {e:"🧀",n:"Pastel, de queijo, frito",cal:422,p:8.7,c:48.1,f:22.7,g:"carboidrato"},
+  {e:"🌾",n:"Pastel, massa, crua",cal:310,p:6.9,c:57.4,f:5.5,g:"carboidrato"},
+  {e:"🌾",n:"Pastel, massa, frita",cal:570,p:6.0,c:49.3,f:40.9,g:"carboidrato"},
+  {e:"🫙",n:"Pipoca, com óleo de soja, sem sal",cal:448,p:9.9,c:70.3,f:15.9,g:"carboidrato"},
+  {e:"🌾",n:"Polenta, pré-cozida",cal:103,p:2.3,c:23.3,f:0.3,g:"carboidrato"},
+  {e:"🌾",n:"Torrada, pão francês",cal:377,p:10.5,c:74.6,f:3.3,g:"carboidrato"},
+  {e:"🥦",n:"Abóbora, cabotian, cozida",cal:48,p:1.4,c:10.8,f:0.7,g:"carboidrato"},
+  {e:"🥦",n:"Abóbora, cabotian, crua",cal:39,p:1.7,c:8.4,f:0.5,g:"carboidrato"},
+  {e:"🥦",n:"Abóbora, menina brasileira, crua",cal:14,p:0.6,c:3.3,f:0.0,g:"carboidrato"},
+  {e:"🥦",n:"Abóbora, moranga, crua",cal:12,p:1.0,c:2.7,f:0.1,g:"carboidrato"},
+  {e:"🥦",n:"Abóbora, moranga, refogada",cal:29,p:0.4,c:6.0,f:0.8,g:"carboidrato"},
+  {e:"🥥",n:"Abóbora, pescoço, crua",cal:24,p:0.7,c:6.1,f:0.1,g:"carboidrato"},
+  {e:"🥒",n:"Abobrinha, italiana, cozida",cal:15,p:1.1,c:3.0,f:0.2,g:"carboidrato"},
+  {e:"🥒",n:"Abobrinha, italiana, crua",cal:19,p:1.1,c:4.3,f:0.1,g:"carboidrato"},
+  {e:"🥒",n:"Abobrinha, italiana, refogada",cal:24,p:1.1,c:4.2,f:0.8,g:"carboidrato"},
+  {e:"🥒",n:"Abobrinha, paulista, crua",cal:31,p:0.6,c:7.9,f:0.1,g:"carboidrato"},
+  {e:"🥦",n:"Acelga, crua",cal:21,p:1.4,c:4.6,f:0.1,g:"carboidrato"},
+  {e:"🥦",n:"Agrião, cru",cal:17,p:2.7,c:2.3,f:0.2,g:"carboidrato"},
+  {e:"🥦",n:"Aipo, cru",cal:19,p:0.8,c:4.3,f:0.1,g:"carboidrato"},
+  {e:"🥬",n:"Alface, americana, crua",cal:9,p:0.6,c:1.7,f:0.1,g:"carboidrato"},
+  {e:"🥬",n:"Alface, crespa, crua",cal:11,p:1.3,c:1.7,f:0.2,g:"carboidrato"},
+  {e:"🥬",n:"Alface, lisa, crua",cal:14,p:1.7,c:2.4,f:0.1,g:"carboidrato"},
+  {e:"🥬",n:"Alface, roxa, crua",cal:13,p:0.9,c:2.5,f:0.2,g:"carboidrato"},
+  {e:"🥦",n:"Alfavaca, crua",cal:29,p:2.7,c:5.2,f:0.5,g:"carboidrato"},
+  {e:"🧄",n:"Alho, cru",cal:113,p:7.0,c:23.9,f:0.2,g:"carboidrato"},
+  {e:"🧄",n:"Alho-poró, cru",cal:32,p:1.4,c:6.9,f:0.1,g:"carboidrato"},
+  {e:"🥦",n:"Almeirão, cru",cal:18,p:1.8,c:3.3,f:0.2,g:"carboidrato"},
+  {e:"🥦",n:"Almeirão, refogado",cal:65,p:1.7,c:5.7,f:4.8,g:"carboidrato"},
+  {e:"🥔",n:"Batata, baroa, cozida",cal:80,p:0.9,c:18.9,f:0.2,g:"carboidrato"},
+  {e:"🥔",n:"Batata, baroa, crua",cal:101,p:1.0,c:24.0,f:0.2,g:"carboidrato"},
+  {e:"🥔",n:"Batata, doce, cozida",cal:77,p:0.6,c:18.4,f:0.1,g:"carboidrato"},
+  {e:"🥔",n:"Batata, doce, crua",cal:118,p:1.3,c:28.2,f:0.1,g:"carboidrato"},
+  {e:"🥔",n:"Batata, frita, tipo chips, industrializada",cal:543,p:5.6,c:51.2,f:36.6,g:"carboidrato"},
+  {e:"🥔",n:"Batata, inglesa, cozida",cal:52,p:1.2,c:11.9,f:0.0,g:"carboidrato"},
+  {e:"🥔",n:"Batata, inglesa, crua",cal:64,p:1.8,c:14.7,f:0.0,g:"carboidrato"},
+  {e:"🥔",n:"Batata, inglesa, frita",cal:267,p:5.0,c:35.6,f:13.1,g:"carboidrato"},
+  {e:"🥔",n:"Batata, inglesa, sauté",cal:68,p:1.3,c:14.1,f:0.9,g:"carboidrato"},
+  {e:"🥦",n:"Berinjela, cozida",cal:19,p:0.7,c:4.5,f:0.1,g:"carboidrato"},
+  {e:"🥦",n:"Berinjela, crua",cal:20,p:1.2,c:4.4,f:0.1,g:"carboidrato"},
+  {e:"🥦",n:"Beterraba, cozida",cal:32,p:1.3,c:7.2,f:0.1,g:"carboidrato"},
+  {e:"🥦",n:"Beterraba, crua",cal:49,p:1.9,c:11.1,f:0.1,g:"carboidrato"},
+  {e:"🍪",n:"Biscoito, polvilho doce",cal:438,p:1.3,c:80.5,f:12.2,g:"carboidrato"},
+  {e:"🥦",n:"Brócolis, cozido",cal:25,p:2.1,c:4.4,f:0.5,g:"carboidrato"},
+  {e:"🥦",n:"Brócolis, cru",cal:26,p:3.6,c:4.0,f:0.3,g:"carboidrato"},
+  {e:"🥦",n:"Cará, cozido",cal:78,p:1.5,c:18.9,f:0.1,g:"carboidrato"},
+  {e:"🥦",n:"Cará, cru",cal:96,p:2.3,c:23.0,f:0.1,g:"carboidrato"},
+  {e:"🥦",n:"Caruru, cru",cal:34,p:3.2,c:6.0,f:0.6,g:"carboidrato"},
+  {e:"🥦",n:"Catalonha, crua",cal:24,p:1.9,c:4.8,f:0.3,g:"carboidrato"},
+  {e:"🥦",n:"Catalonha, refogada",cal:63,p:1.9,c:4.8,f:4.8,g:"carboidrato"},
+  {e:"🧅",n:"Cebola, crua",cal:39,p:1.7,c:8.9,f:0.1,g:"carboidrato"},
+  {e:"🥦",n:"Cebolinha, crua",cal:20,p:1.9,c:3.4,f:0.3,g:"carboidrato"},
+  {e:"🥕",n:"Cenoura, cozida",cal:30,p:0.8,c:6.7,f:0.2,g:"carboidrato"},
+  {e:"🥕",n:"Cenoura, crua",cal:34,p:1.3,c:7.7,f:0.2,g:"carboidrato"},
+  {e:"🥦",n:"Chicória, crua",cal:14,p:1.1,c:2.9,f:0.1,g:"carboidrato"},
+  {e:"🥦",n:"Chuchu, cozido",cal:18,p:0.4,c:4.8,f:0.0,g:"carboidrato"},
+  {e:"🥦",n:"Chuchu, cru",cal:17,p:0.7,c:4.1,f:0.1,g:"carboidrato"},
+  {e:"🥦",n:"Coentro, folhas desidratadas",cal:309,p:20.9,c:48.0,f:10.4,g:"carboidrato"},
+  {e:"🥬",n:"Couve, manteiga, crua",cal:27,p:2.9,c:4.3,f:0.5,g:"carboidrato"},
+  {e:"🥬",n:"Couve, manteiga, refogada",cal:90,p:1.7,c:8.7,f:6.6,g:"carboidrato"},
+  {e:"🥬",n:"Couve-flor, crua",cal:23,p:1.9,c:4.5,f:0.2,g:"carboidrato"},
+  {e:"🥬",n:"Couve-flor, cozida",cal:19,p:1.2,c:3.9,f:0.3,g:"carboidrato"},
+  {e:"🥬",n:"Espinafre, Nova Zelândia, cru",cal:16,p:2.0,c:2.6,f:0.2,g:"carboidrato"},
+  {e:"🥬",n:"Espinafre, Nova Zelândia, refogado",cal:67,p:2.7,c:4.2,f:5.4,g:"carboidrato"},
+  {e:"🌾",n:"Farinha, de mandioca, crua",cal:361,p:1.6,c:87.9,f:0.3,g:"carboidrato"},
+  {e:"🌾",n:"Farinha, de mandioca, torrada",cal:365,p:1.2,c:89.2,f:0.3,g:"carboidrato"},
+  {e:"🌾",n:"Farinha, de puba",cal:360,p:1.6,c:87.3,f:0.5,g:"carboidrato"},
+  {e:"🥦",n:"Fécula, de mandioca",cal:331,p:0.5,c:81.1,f:0.3,g:"carboidrato"},
+  {e:"🫘",n:"Feijão, broto, cru",cal:39,p:4.2,c:7.8,f:0.1,g:"carboidrato"},
+  {e:"🥦",n:"Inhame, cru",cal:97,p:2.1,c:23.2,f:0.2,g:"carboidrato"},
+  {e:"🥦",n:"Jiló, cru",cal:27,p:1.4,c:6.2,f:0.2,g:"carboidrato"},
+  {e:"🥦",n:"Jurubeba, crua",cal:126,p:4.4,c:23.1,f:3.9,g:"carboidrato"},
+  {e:"🥦",n:"Mandioca, cozida",cal:125,p:0.6,c:30.1,f:0.3,g:"carboidrato"},
+  {e:"🥦",n:"Mandioca, crua",cal:151,p:1.1,c:36.2,f:0.3,g:"carboidrato"},
+  {e:"🍐",n:"Mandioca, farofa, temperada",cal:406,p:2.1,c:80.3,f:9.1,g:"carboidrato"},
+  {e:"🥦",n:"Mandioca, frita",cal:300,p:1.4,c:50.3,f:11.2,g:"carboidrato"},
+  {e:"🥦",n:"Manjericão, cru",cal:21,p:2.0,c:3.6,f:0.4,g:"carboidrato"},
+  {e:"🥦",n:"Maxixe, cru",cal:14,p:1.4,c:2.7,f:0.1,g:"carboidrato"},
+  {e:"🥦",n:"Mostarda, folha, crua",cal:18,p:2.1,c:3.2,f:0.2,g:"carboidrato"},
+  {e:"🥔",n:"Nhoque, batata, cozido",cal:181,p:5.9,c:36.8,f:1.9,g:"carboidrato"},
+  {e:"🥦",n:"Nabo, cru",cal:18,p:1.2,c:4.1,f:0.1,g:"carboidrato"},
+  {e:"🥦",n:"Palmito, juçara, em conserva",cal:23,p:1.8,c:4.3,f:0.4,g:"carboidrato"},
+  {e:"🥦",n:"Palmito, pupunha, em conserva",cal:29,p:2.5,c:5.5,f:0.5,g:"carboidrato"},
+  {e:"🧀",n:"Pão, de queijo, assado",cal:363,p:5.1,c:34.2,f:24.6,g:"carboidrato"},
+  {e:"🧀",n:"Pão, de queijo, cru",cal:294,p:3.6,c:38.5,f:14.0,g:"carboidrato"},
+  {e:"🥒",n:"Pepino, cru",cal:10,p:0.9,c:2.0,f:0.0,g:"carboidrato"},
+  {e:"🥦",n:"Pimentão, amarelo, cru",cal:28,p:1.2,c:6.0,f:0.4,g:"carboidrato"},
+  {e:"🥦",n:"Pimentão, verde, cru",cal:21,p:1.1,c:4.9,f:0.1,g:"carboidrato"},
+  {e:"🍯",n:"Pimentão, vermelho, cru",cal:23,p:1.0,c:5.5,f:0.1,g:"carboidrato"},
+  {e:"🥦",n:"Polvilho, doce",cal:351,p:0.4,c:86.8,f:0.0,g:"carboidrato"},
+  {e:"🫑",n:"Quiabo, cru",cal:30,p:1.9,c:6.4,f:0.3,g:"carboidrato"},
+  {e:"🥦",n:"Rabanete, cru",cal:14,p:1.4,c:2.7,f:0.1,g:"carboidrato"},
+  {e:"🥬",n:"Repolho, branco, cru",cal:17,p:0.9,c:3.9,f:0.1,g:"carboidrato"},
+  {e:"🥬",n:"Repolho, roxo, cru",cal:31,p:1.9,c:7.2,f:0.1,g:"carboidrato"},
+  {e:"🥬",n:"Repolho, roxo, refogado",cal:42,p:1.8,c:7.6,f:1.2,g:"carboidrato"},
+  {e:"🥦",n:"Rúcula, crua",cal:13,p:1.8,c:2.2,f:0.1,g:"carboidrato"},
+  {e:"🥦",n:"Salsa, crua",cal:33,p:3.3,c:5.7,f:0.6,g:"carboidrato"},
+  {e:"🥦",n:"Seleta de legumes, enlatada",cal:56,p:3.4,c:12.7,f:0.4,g:"carboidrato"},
+  {e:"🥦",n:"Serralha, crua",cal:30,p:2.7,c:4.9,f:0.7,g:"carboidrato"},
+  {e:"🥦",n:"Taioba, crua",cal:34,p:2.9,c:5.4,f:0.9,g:"carboidrato"},
+  {e:"🍅",n:"Tomate, com semente, cru",cal:15,p:1.1,c:3.1,f:0.2,g:"carboidrato"},
+  {e:"🍅",n:"Tomate, extrato",cal:61,p:2.4,c:15.0,f:0.2,g:"carboidrato"},
+  {e:"🍅",n:"Tomate, molho industrializado",cal:38,p:1.4,c:7.7,f:0.9,g:"carboidrato"},
+  {e:"🍅",n:"Tomate, purê",cal:28,p:1.4,c:6.9,f:0.0,g:"carboidrato"},
+  {e:"🍅",n:"Tomate, salada",cal:20,p:0.8,c:5.1,f:0.0,g:"carboidrato"},
+  {e:"🥦",n:"Vagem, crua",cal:25,p:1.8,c:5.3,f:0.2,g:"carboidrato"},
+  {e:"🥑",n:"Abacate, cru",cal:96,p:1.2,c:6.0,f:8.4,g:"carboidrato"},
+  {e:"🍍",n:"Abacaxi, cru",cal:48,p:0.9,c:12.3,f:0.1,g:"carboidrato"},
+  {e:"🍍",n:"Abacaxi, polpa, congelada",cal:31,p:0.5,c:7.8,f:0.1,g:"carboidrato"},
+  {e:"🍎",n:"Abiu, cru",cal:62,p:0.8,c:14.9,f:0.7,g:"carboidrato"},
+  {e:"🍎",n:"Açaí, polpa, com xarope de guaraná e glucose",cal:110,p:0.7,c:21.5,f:3.7,g:"carboidrato"},
+  {e:"🍎",n:"Açaí, polpa, congelada",cal:58,p:0.8,c:6.2,f:3.9,g:"carboidrato"},
+  {e:"🍎",n:"Acerola, crua",cal:34,p:0.9,c:8.0,f:0.2,g:"carboidrato"},
+  {e:"🍎",n:"Acerola, polpa, congelada",cal:22,p:0.6,c:5.5,f:0.0,g:"carboidrato"},
+  {e:"🍎",n:"Ameixa, calda, enlatada",cal:183,p:0.4,c:46.9,f:0.0,g:"carboidrato"},
+  {e:"🍎",n:"Ameixa, crua",cal:52,p:0.8,c:13.9,f:0.0,g:"carboidrato"},
+  {e:"🍎",n:"Ameixa, em calda, enlatada, drenada",cal:177,p:1.0,c:47.7,f:0.3,g:"carboidrato"},
+  {e:"🍎",n:"Atemóia, crua",cal:97,p:1.0,c:25.3,f:0.3,g:"carboidrato"},
+  {e:"🍌",n:"Banana, da terra, crua",cal:128,p:1.4,c:33.7,f:0.2,g:"carboidrato"},
+  {e:"🍌",n:"Banana, doce em barra",cal:280,p:2.2,c:75.7,f:0.1,g:"carboidrato"},
+  {e:"🍌",n:"Banana, figo, crua",cal:105,p:1.1,c:27.8,f:0.1,g:"carboidrato"},
+  {e:"🍌",n:"Banana, maçã, crua",cal:87,p:1.8,c:22.3,f:0.1,g:"carboidrato"},
+  {e:"🍌",n:"Banana, nanica, crua",cal:92,p:1.4,c:23.8,f:0.1,g:"carboidrato"},
+  {e:"🍌",n:"Banana, ouro, crua",cal:112,p:1.5,c:29.3,f:0.2,g:"carboidrato"},
+  {e:"🍌",n:"Banana, pacova, crua",cal:78,p:1.2,c:20.3,f:0.1,g:"carboidrato"},
+  {e:"🍌",n:"Banana, prata, crua",cal:98,p:1.3,c:26.0,f:0.1,g:"carboidrato"},
+  {e:"🍎",n:"Cacau, cru",cal:74,p:1.0,c:19.4,f:0.1,g:"carboidrato"},
+  {e:"🥭",n:"Cajá-Manga, cru",cal:46,p:1.3,c:11.4,f:0.0,g:"carboidrato"},
+  {e:"🍎",n:"Cajá, polpa, congelada",cal:26,p:0.6,c:6.4,f:0.2,g:"carboidrato"},
+  {e:"🍎",n:"Caju, cru",cal:43,p:1.0,c:10.3,f:0.3,g:"carboidrato"},
+  {e:"🍎",n:"Caju, polpa, congelada",cal:37,p:0.5,c:9.4,f:0.2,g:"carboidrato"},
+  {e:"🍎",n:"Caju, suco concentrado, envasado",cal:45,p:0.4,c:10.7,f:0.2,g:"carboidrato"},
+  {e:"🍫",n:"Caqui, chocolate, cru",cal:71,p:0.4,c:19.3,f:0.1,g:"carboidrato"},
+  {e:"🍎",n:"Carambola, crua",cal:46,p:0.9,c:11.5,f:0.2,g:"carboidrato"},
+  {e:"🍎",n:"Ciriguela, crua",cal:76,p:1.4,c:18.9,f:0.4,g:"carboidrato"},
+  {e:"🍎",n:"Cupuaçu, cru",cal:49,p:1.2,c:10.4,f:1.0,g:"carboidrato"},
+  {e:"🍎",n:"Cupuaçu, polpa, congelada",cal:49,p:0.8,c:11.4,f:0.6,g:"carboidrato"},
+  {e:"🍎",n:"Figo, cru",cal:41,p:1.0,c:10.2,f:0.2,g:"carboidrato"},
+  {e:"🍎",n:"Figo, enlatado, em calda",cal:184,p:0.6,c:50.3,f:0.1,g:"carboidrato"},
+  {e:"🍎",n:"Fruta-pão, crua",cal:67,p:1.1,c:17.2,f:0.2,g:"carboidrato"},
+  {e:"🍈",n:"Goiaba, branca, com casca, crua",cal:52,p:0.9,c:12.4,f:0.5,g:"carboidrato"},
+  {e:"🍈",n:"Goiaba, doce em pasta",cal:269,p:0.6,c:74.1,f:0.0,g:"carboidrato"},
+  {e:"🍈",n:"Goiaba, doce, cascão",cal:286,p:0.4,c:78.7,f:0.1,g:"carboidrato"},
+  {e:"🍈",n:"Goiaba, vermelha, com casca, crua",cal:54,p:1.1,c:13.0,f:0.4,g:"carboidrato"},
+  {e:"🍎",n:"Graviola, crua",cal:62,p:0.8,c:15.8,f:0.2,g:"carboidrato"},
+  {e:"🍎",n:"Graviola, polpa, congelada",cal:38,p:0.6,c:9.8,f:0.1,g:"carboidrato"},
+  {e:"🍎",n:"Jabuticaba, crua",cal:58,p:0.6,c:15.3,f:0.1,g:"carboidrato"},
+  {e:"🍎",n:"Jaca, crua",cal:88,p:1.4,c:22.5,f:0.3,g:"carboidrato"},
+  {e:"🍎",n:"Jambo, cru",cal:27,p:0.9,c:6.5,f:0.1,g:"carboidrato"},
+  {e:"🍯",n:"Jamelão, cru",cal:41,p:0.5,c:10.6,f:0.1,g:"carboidrato"},
+  {e:"🍎",n:"Kiwi, cru",cal:51,p:1.3,c:11.5,f:0.6,g:"carboidrato"},
+  {e:"🍊",n:"Laranja, baía, crua",cal:45,p:1.0,c:11.5,f:0.1,g:"carboidrato"},
+  {e:"🍊",n:"Laranja, baía, suco",cal:37,p:0.7,c:8.7,f:0.0,g:"carboidrato"},
+  {e:"🍊",n:"Laranja, da terra, crua",cal:52,p:1.1,c:12.9,f:0.2,g:"carboidrato"},
+  {e:"🍊",n:"Laranja, da terra, suco",cal:41,p:0.7,c:9.6,f:0.1,g:"carboidrato"},
+  {e:"🍊",n:"Laranja, lima, crua",cal:46,p:1.1,c:11.5,f:0.1,g:"carboidrato"},
+  {e:"🍊",n:"Laranja, lima, suco",cal:39,p:0.7,c:9.2,f:0.1,g:"carboidrato"},
+  {e:"🍊",n:"Laranja, pêra, crua",cal:37,p:1.0,c:8.9,f:0.1,g:"carboidrato"},
+  {e:"🍊",n:"Laranja, pêra, suco",cal:33,p:0.7,c:7.6,f:0.1,g:"carboidrato"},
+  {e:"🍊",n:"Laranja, valência, crua",cal:46,p:0.8,c:11.7,f:0.2,g:"carboidrato"},
+  {e:"🍊",n:"Laranja, valência, suco",cal:36,p:0.5,c:8.6,f:0.1,g:"carboidrato"},
+  {e:"🍎",n:"Limão, cravo, suco",cal:14,p:0.3,c:5.2,f:0.0,g:"carboidrato"},
+  {e:"🍎",n:"Limão, galego, suco",cal:22,p:0.6,c:7.3,f:0.1,g:"carboidrato"},
+  {e:"🍎",n:"Limão, tahiti, cru",cal:32,p:0.9,c:11.1,f:0.1,g:"carboidrato"},
+  {e:"🍎",n:"Maçã, Argentina, com casca, crua",cal:62,p:0.2,c:16.6,f:0.2,g:"carboidrato"},
+  {e:"🍎",n:"Maçã, Fuji, com casca, crua",cal:56,p:0.3,c:15.2,f:0.0,g:"carboidrato"},
+  {e:"🍎",n:"Macaúba, crua",cal:404,p:2.1,c:13.9,f:40.7,g:"gordura"},
+  {e:"🍎",n:"Mamão, doce em calda, drenado",cal:196,p:0.2,c:54.0,f:0.1,g:"carboidrato"},
+  {e:"🍎",n:"Mamão, Formosa, cru",cal:45,p:0.8,c:11.6,f:0.1,g:"carboidrato"},
+  {e:"🍎",n:"Mamão, Papaia, cru",cal:40,p:0.5,c:10.4,f:0.1,g:"carboidrato"},
+  {e:"🍎",n:"Mamão verde, doce em calda, drenado",cal:209,p:0.3,c:57.6,f:0.1,g:"carboidrato"},
+  {e:"🥭",n:"Manga, Haden, crua",cal:64,p:0.4,c:16.7,f:0.3,g:"carboidrato"},
+  {e:"🥭",n:"Manga, Palmer, crua",cal:72,p:0.4,c:19.4,f:0.2,g:"carboidrato"},
+  {e:"🥭",n:"Manga, polpa, congelada",cal:48,p:0.4,c:12.5,f:0.2,g:"carboidrato"},
+  {e:"🥭",n:"Manga, Tommy Atkins, crua",cal:51,p:0.9,c:12.8,f:0.2,g:"carboidrato"},
+  {e:"🍈",n:"Maracujá, cru",cal:68,p:2.0,c:12.3,f:2.1,g:"carboidrato"},
+  {e:"🍈",n:"Maracujá, polpa, congelada",cal:39,p:0.8,c:9.6,f:0.2,g:"carboidrato"},
+  {e:"🍈",n:"Maracujá, suco concentrado, envasado",cal:42,p:0.8,c:9.6,f:0.2,g:"carboidrato"},
+  {e:"🍉",n:"Melancia, crua",cal:33,p:0.9,c:8.1,f:0.0,g:"carboidrato"},
+  {e:"🍯",n:"Melão, cru",cal:29,p:0.7,c:7.5,f:0.0,g:"carboidrato"},
+  {e:"🍎",n:"Mexerica, Murcote, crua",cal:58,p:0.9,c:14.9,f:0.1,g:"carboidrato"},
+  {e:"🍎",n:"Mexerica, Rio, crua",cal:37,p:0.7,c:9.3,f:0.1,g:"carboidrato"},
+  {e:"🍓",n:"Morango, cru",cal:30,p:0.9,c:6.8,f:0.3,g:"carboidrato"},
+  {e:"🍐",n:"Nêspera, crua",cal:42,p:0.3,c:11.5,f:0.0,g:"carboidrato"},
+  {e:"🍎",n:"Pequi, cru",cal:205,p:2.3,c:13.0,f:18.0,g:"carboidrato"},
+  {e:"🍐",n:"Pêra, Park, crua",cal:61,p:0.2,c:16.1,f:0.2,g:"carboidrato"},
+  {e:"🍐",n:"Pêra, Williams, crua",cal:53,p:0.6,c:14.0,f:0.1,g:"carboidrato"},
+  {e:"🍎",n:"Pêssego, Aurora, cru",cal:36,p:0.8,c:9.3,f:0.0,g:"carboidrato"},
+  {e:"🍎",n:"Pêssego, enlatado, em calda",cal:63,p:0.7,c:16.9,f:0.0,g:"carboidrato"},
+  {e:"🍎",n:"Pinha, crua",cal:88,p:1.5,c:22.4,f:0.3,g:"carboidrato"},
+  {e:"🍎",n:"Pitanga, crua",cal:41,p:0.9,c:10.2,f:0.2,g:"carboidrato"},
+  {e:"🍎",n:"Pitanga, polpa, congelada",cal:19,p:0.3,c:4.8,f:0.1,g:"carboidrato"},
+  {e:"🍎",n:"Romã, crua",cal:56,p:0.4,c:15.1,f:0.0,g:"carboidrato"},
+  {e:"🍎",n:"Tamarindo, cru",cal:276,p:3.2,c:72.5,f:0.5,g:"carboidrato"},
+  {e:"🍎",n:"Tangerina, Poncã, crua",cal:38,p:0.8,c:9.6,f:0.1,g:"carboidrato"},
+  {e:"🍎",n:"Tangerina, Poncã, suco",cal:36,p:0.5,c:8.8,f:0.0,g:"carboidrato"},
+  {e:"🍎",n:"Tucumã, cru",cal:262,p:2.1,c:26.5,f:19.1,g:"carboidrato"},
+  {e:"🍎",n:"Umbu, cru",cal:37,p:0.8,c:9.4,f:0.0,g:"carboidrato"},
+  {e:"🍎",n:"Umbu, polpa, congelada",cal:34,p:0.5,c:8.8,f:0.1,g:"carboidrato"},
+  {e:"🍇",n:"Uva, Itália, crua",cal:53,p:0.7,c:13.6,f:0.2,g:"carboidrato"},
+  {e:"🍇",n:"Uva, Rubi, crua",cal:49,p:0.6,c:12.7,f:0.2,g:"carboidrato"},
+  {e:"🍇",n:"Uva, suco concentrado, envasado",cal:58,p:0.0,c:14.7,f:0.0,g:"carboidrato"},
+  {e:"🫒",n:"Azeite, de dendê",cal:884,p:0.0,c:0.0,f:100.0,g:"gordura"},
+  {e:"🫒",n:"Azeite, de oliva, extra virgem",cal:884,p:0.0,c:0.0,f:100.0,g:"gordura"},
+  {e:"🧈",n:"Manteiga, com sal",cal:726,p:0.4,c:0.1,f:82.4,g:"gordura"},
+  {e:"🧈",n:"Manteiga, sem sal",cal:758,p:0.4,c:0.0,f:86.0,g:"gordura"},
+  {e:"🫙",n:"Margarina, com óleo hidrogenado, com sal (65% de lipídeos)",cal:596,p:0.0,c:0.0,f:67.4,g:"gordura"},
+  {e:"🫙",n:"Margarina, com óleo hidrogenado, sem sal (80% de lipídeos)",cal:722,p:0.0,c:0.0,f:81.7,g:"gordura"},
+  {e:"🫙",n:"Margarina, com óleo interesterificado, com sal (65%de lipídeos)",cal:594,p:0.0,c:0.0,f:67.2,g:"gordura"},
+  {e:"🫙",n:"Margarina, com óleo interesterificado, sem sal (65% de lipídeos)",cal:593,p:0.0,c:0.0,f:67.1,g:"gordura"},
+  {e:"🫙",n:"Óleo, de babaçu",cal:884,p:0.0,c:0.0,f:100.0,g:"gordura"},
+  {e:"🫙",n:"Óleo, de canola",cal:884,p:0.0,c:0.0,f:100.0,g:"gordura"},
+  {e:"🫙",n:"Óleo, de girassol",cal:884,p:0.0,c:0.0,f:100.0,g:"gordura"},
+  {e:"🌽",n:"Óleo, de milho",cal:884,p:0.0,c:0.0,f:100.0,g:"gordura"},
+  {e:"🫙",n:"Óleo, de pequi",cal:884,p:0.0,c:0.0,f:100.0,g:"gordura"},
+  {e:"🫙",n:"Óleo, de soja",cal:884,p:0.0,c:0.0,f:100.0,g:"gordura"},
+  {e:"🐟",n:"Abadejo, filé, congelado, assado",cal:112,p:23.5,c:0.0,f:1.2,g:"proteina"},
+  {e:"🐟",n:"Abadejo, filé, congelado,cozido",cal:91,p:19.3,c:0.0,f:0.9,g:"proteina"},
+  {e:"🐟",n:"Abadejo, filé, congelado, cru",cal:59,p:13.1,c:0.0,f:0.4,g:"proteina"},
+  {e:"🐟",n:"Abadejo, filé, congelado, grelhado",cal:130,p:27.6,c:0.0,f:1.3,g:"proteina"},
+  {e:"🫙",n:"Atum, conserva em óleo",cal:166,p:26.2,c:0.0,f:6.0,g:"proteina"},
+  {e:"🐟",n:"Atum, fresco, cru",cal:118,p:25.7,c:0.0,f:0.9,g:"proteina"},
+  {e:"🐟",n:"Bacalhau, salgado, cru",cal:136,p:29.0,c:0.0,f:1.3,g:"proteina"},
+  {e:"🐟",n:"Bacalhau, salgado, refogado",cal:140,p:24.0,c:1.2,f:3.6,g:"proteina"},
+  {e:"🌾",n:"Cação, posta, com farinha de trigo, frita",cal:208,p:25.0,c:3.1,f:10.0,g:"proteina"},
+  {e:"🐟",n:"Cação, posta, cozida",cal:116,p:25.6,c:0.0,f:0.7,g:"proteina"},
+  {e:"🐟",n:"Cação, posta, crua",cal:83,p:17.9,c:0.0,f:0.8,g:"proteina"},
+  {e:"🦐",n:"Camarão, Rio Grande, grande, cozido",cal:90,p:19.0,c:0.0,f:1.0,g:"proteina"},
+  {e:"🦐",n:"Camarão, Rio Grande, grande, cru",cal:47,p:10.0,c:0.0,f:0.5,g:"proteina"},
+  {e:"🦐",n:"Camarão, Sete Barbas, sem cabeça, com casca, frito",cal:231,p:18.4,c:2.9,f:15.6,g:"proteina"},
+  {e:"🐟",n:"Caranguejo, cozido",cal:83,p:18.5,c:0.0,f:0.4,g:"proteina"},
+  {e:"🐟",n:"Corimba, cru",cal:128,p:17.4,c:-0.0,f:6.0,g:"proteina"},
+  {e:"🐟",n:"Corimbatá, assado",cal:262,p:19.9,c:0.0,f:19.6,g:"proteina"},
+  {e:"🐟",n:"Corimbatá, cozido",cal:239,p:20.1,c:0.0,f:16.9,g:"proteina"},
+  {e:"🐟",n:"Corvina de água doce, crua",cal:101,p:18.9,c:0.0,f:2.2,g:"proteina"},
+  {e:"🐟",n:"Corvina do mar, crua",cal:94,p:18.6,c:0.0,f:1.6,g:"proteina"},
+  {e:"🐟",n:"Corvina grande, assada",cal:146,p:26.8,c:0.0,f:3.6,g:"proteina"},
+  {e:"🐟",n:"Corvina grande, cozida",cal:100,p:23.4,c:0.0,f:2.6,g:"proteina"},
+  {e:"🐟",n:"Dourada de água doce, fresca",cal:131,p:18.8,c:0.0,f:5.6,g:"proteina"},
+  {e:"🐟",n:"Lambari, congelado, cru",cal:131,p:16.8,c:0.0,f:6.5,g:"proteina"},
+  {e:"🐟",n:"Lambari, congelado, frito",cal:327,p:28.4,c:0.0,f:22.8,g:"proteina"},
+  {e:"🐟",n:"Lambari, fresco, cru",cal:152,p:15.7,c:0.0,f:9.4,g:"proteina"},
+  {e:"🌾",n:"Manjuba, com farinha de trigo, frita",cal:344,p:23.4,c:10.2,f:22.6,g:"proteina"},
+  {e:"🐟",n:"Manjuba, frita",cal:349,p:30.1,c:0.0,f:24.5,g:"proteina"},
+  {e:"🐟",n:"Merluza, filé, assado",cal:122,p:26.6,c:0.0,f:0.9,g:"proteina"},
+  {e:"🐟",n:"Merluza, filé, cru",cal:89,p:16.6,c:0.0,f:2.0,g:"proteina"},
+  {e:"🐟",n:"Merluza, filé, frito",cal:192,p:26.9,c:0.0,f:8.5,g:"proteina"},
+  {e:"🐟",n:"Pescada, branca, crua",cal:111,p:16.3,c:0.0,f:4.6,g:"proteina"},
+  {e:"🐟",n:"Pescada, branca, frita",cal:223,p:27.4,c:0.0,f:11.8,g:"proteina"},
+  {e:"🌾",n:"Pescada, filé, com farinha de trigo, frito",cal:283,p:21.4,c:5.0,f:19.1,g:"proteina"},
+  {e:"🐟",n:"Pescada, filé, cru",cal:107,p:16.6,c:0.0,f:4.0,g:"proteina"},
+  {e:"🐟",n:"Pescada, filé, frito",cal:154,p:28.6,c:0.0,f:3.6,g:"proteina"},
+  {e:"🐟",n:"Pescada, filé, molho escabeche",cal:142,p:11.8,c:5.0,f:8.0,g:"proteina"},
+  {e:"🐟",n:"Pescadinha, crua",cal:76,p:15.5,c:0.0,f:1.1,g:"proteina"},
+  {e:"🐟",n:"Pintado, assado",cal:192,p:36.5,c:0.0,f:4.0,g:"proteina"},
+  {e:"🐟",n:"Pintado, cru",cal:91,p:18.6,c:0.0,f:1.3,g:"proteina"},
+  {e:"🐟",n:"Pintado, grelhado",cal:152,p:30.8,c:0.0,f:2.3,g:"proteina"},
+  {e:"🐟",n:"Porquinho, cru",cal:93,p:20.5,c:0.0,f:0.6,g:"proteina"},
+  {e:"🐟",n:"Salmão, filé, com pele, fresco, grelhado",cal:229,p:23.9,c:0.0,f:14.0,g:"proteina"},
+  {e:"🐟",n:"Salmão, sem pele, fresco, cru",cal:170,p:19.3,c:0.0,f:9.7,g:"proteina"},
+  {e:"🐟",n:"Salmão, sem pele, fresco, grelhado",cal:243,p:26.1,c:0.0,f:14.5,g:"proteina"},
+  {e:"🐟",n:"Sardinha, assada",cal:164,p:32.2,c:0.0,f:3.0,g:"proteina"},
+  {e:"🫙",n:"Sardinha, conserva em óleo",cal:285,p:15.9,c:0.0,f:24.0,g:"gordura"},
+  {e:"🐟",n:"Sardinha, frita",cal:257,p:33.4,c:0.0,f:12.7,g:"proteina"},
+  {e:"🐟",n:"Sardinha, inteira, crua",cal:114,p:21.1,c:0.0,f:2.6,g:"proteina"},
+  {e:"🐟",n:"Tucunaré, filé, congelado, cru",cal:88,p:18.0,c:-0.0,f:1.2,g:"proteina"},
+  {e:"🥩",n:"Apresuntado",cal:129,p:13.4,c:2.9,f:6.7,g:"proteina"},
+  {e:"🥩",n:"Caldo de carne, tablete",cal:241,p:7.8,c:15.1,f:16.6,g:"carboidrato"},
+  {e:"🍗",n:"Caldo de galinha, tablete",cal:251,p:6.3,c:10.6,f:20.4,g:"gordura"},
+  {e:"🥩",n:"Carne, bovina, acém, moído, cozido",cal:212,p:26.7,c:0.0,f:10.9,g:"proteina"},
+  {e:"🥩",n:"Carne, bovina, acém, moído, cru",cal:137,p:19.4,c:0.0,f:5.9,g:"proteina"},
+  {e:"🥩",n:"Carne, bovina, acém, sem gordura, cozido",cal:215,p:27.3,c:0.0,f:10.9,g:"proteina"},
+  {e:"🥩",n:"Carne, bovina, acém, sem gordura, cru",cal:144,p:20.8,c:0.0,f:6.1,g:"proteina"},
+  {e:"🥩",n:"Carne, bovina, almôndegas, cruas",cal:189,p:12.3,c:9.8,f:11.2,g:"proteina"},
+  {e:"🥩",n:"Carne, bovina, almôndegas, fritas",cal:272,p:18.2,c:14.3,f:15.8,g:"proteina"},
+  {e:"🥩",n:"Carne, bovina, bucho, cozido",cal:133,p:21.6,c:0.0,f:4.5,g:"proteina"},
+  {e:"🥩",n:"Carne, bovina, bucho, cru",cal:137,p:20.5,c:0.0,f:5.5,g:"proteina"},
+  {e:"🥩",n:"Carne, bovina, capa de contra-filé, com gordura, crua",cal:217,p:19.2,c:0.0,f:15.0,g:"proteina"},
+  {e:"🥩",n:"Carne, bovina, capa de contra-filé, com gordura, grelhada",cal:312,p:30.7,c:0.0,f:20.0,g:"proteina"},
+  {e:"🥩",n:"Carne, bovina, capa de contra-filé, sem gordura, crua",cal:131,p:21.5,c:0.0,f:4.3,g:"proteina"},
+  {e:"🥩",n:"Carne, bovina, capa de contra-filé, sem gordura, grelhada",cal:239,p:35.1,c:-0.0,f:9.9,g:"proteina"},
+  {e:"🥩",n:"Carne, bovina, charque, cozido",cal:263,p:36.4,c:0.0,f:11.9,g:"proteina"},
+  {e:"🥩",n:"Carne, bovina, charque, cru",cal:249,p:22.7,c:0.0,f:16.8,g:"proteina"},
+  {e:"🥩",n:"Carne, bovina, contra-filé, à milanesa",cal:352,p:20.6,c:12.2,f:24.0,g:"gordura"},
+  {e:"🥩",n:"Carne, bovina, contra-filé de costela, cru",cal:202,p:19.8,c:0.0,f:13.1,g:"proteina"},
+  {e:"🥩",n:"Carne, bovina, contra-filé de costela, grelhado",cal:275,p:29.9,c:0.0,f:16.3,g:"proteina"},
+  {e:"🥩",n:"Carne, bovina, contra-filé, com gordura, cru",cal:206,p:21.1,c:0.0,f:12.8,g:"proteina"},
+  {e:"🥩",n:"Carne, bovina, contra-filé, com gordura, grelhado",cal:278,p:32.4,c:0.0,f:15.5,g:"proteina"},
+  {e:"🥩",n:"Carne, bovina, contra-filé, sem gordura, cru",cal:157,p:24.0,c:0.0,f:6.0,g:"proteina"},
+  {e:"🥩",n:"Carne, bovina, contra-filé, sem gordura, grelhado",cal:194,p:35.9,c:0.0,f:4.5,g:"proteina"},
+  {e:"🥩",n:"Carne, bovina, costela, assada",cal:373,p:28.8,c:0.0,f:27.7,g:"proteina"},
+  {e:"🥩",n:"Carne, bovina, costela, crua",cal:358,p:16.7,c:0.0,f:31.8,g:"gordura"},
+  {e:"🥩",n:"Carne, bovina, coxão duro, sem gordura, cozido",cal:217,p:31.9,c:0.0,f:8.9,g:"proteina"},
+  {e:"🥩",n:"Carne, bovina, coxão duro, sem gordura, cru",cal:148,p:21.5,c:0.0,f:6.2,g:"proteina"},
+  {e:"🥩",n:"Carne, bovina, coxão mole, sem gordura, cozido",cal:219,p:32.4,c:0.0,f:8.9,g:"proteina"},
+  {e:"🥩",n:"Carne, bovina, coxão mole, sem gordura, cru",cal:169,p:21.2,c:0.0,f:8.7,g:"proteina"},
+  {e:"🥩",n:"Carne, bovina, cupim, assado",cal:330,p:28.6,c:0.0,f:23.0,g:"proteina"},
+  {e:"🥩",n:"Carne, bovina, cupim, cru",cal:221,p:19.5,c:0.0,f:15.3,g:"proteina"},
+  {e:"🥩",n:"Carne, bovina, fígado, cru",cal:141,p:20.7,c:1.1,f:5.4,g:"proteina"},
+  {e:"🥩",n:"Carne, bovina, fígado, grelhado",cal:225,p:29.9,c:4.2,f:9.0,g:"proteina"},
+  {e:"🥩",n:"Carne, bovina, filé mingnon, sem gordura, cru",cal:143,p:21.6,c:0.0,f:5.6,g:"proteina"},
+  {e:"🥩",n:"Carne, bovina, filé mingnon, sem gordura, grelhado",cal:220,p:32.8,c:0.0,f:8.8,g:"proteina"},
+  {e:"🥩",n:"Carne, bovina, flanco, sem gordura, cozido",cal:196,p:29.4,c:0.0,f:7.8,g:"proteina"},
+  {e:"🥩",n:"Carne, bovina, flanco, sem gordura, cru",cal:142,p:20.0,c:0.0,f:6.2,g:"proteina"},
+  {e:"🥩",n:"Carne, bovina, fraldinha, com gordura, cozida",cal:338,p:24.2,c:0.0,f:26.0,g:"gordura"},
+  {e:"🥩",n:"Carne, bovina, fraldinha, com gordura, crua",cal:221,p:17.6,c:0.0,f:16.1,g:"proteina"},
+  {e:"🥩",n:"Carne, bovina, lagarto, cozido",cal:222,p:32.9,c:0.0,f:9.1,g:"proteina"},
+  {e:"🥩",n:"Carne, bovina, lagarto, cru",cal:135,p:20.5,c:0.0,f:5.2,g:"proteina"},
+  {e:"🥩",n:"Carne, bovina, língua, cozida",cal:315,p:21.4,c:0.0,f:24.8,g:"gordura"},
+  {e:"🥩",n:"Carne, bovina, língua, crua",cal:215,p:17.1,c:0.0,f:15.8,g:"proteina"},
+  {e:"🥩",n:"Carne, bovina, maminha, crua",cal:153,p:20.9,c:0.0,f:7.0,g:"proteina"},
+  {e:"🥩",n:"Carne, bovina, maminha, grelhada",cal:153,p:30.7,c:0.0,f:2.4,g:"proteina"},
+  {e:"🥩",n:"Carne, bovina, miolo de alcatra, sem gordura, cru",cal:163,p:21.6,c:0.0,f:7.8,g:"proteina"},
+  {e:"🥩",n:"Carne, bovina, miolo de alcatra, sem gordura, grelhado",cal:241,p:31.9,c:0.0,f:11.6,g:"proteina"},
+  {e:"🥩",n:"Carne, bovina, músculo, sem gordura, cozido",cal:194,p:31.2,c:0.0,f:6.7,g:"proteina"},
+  {e:"🥩",n:"Carne, bovina, músculo, sem gordura, cru",cal:142,p:21.6,c:0.0,f:5.5,g:"proteina"},
+  {e:"🥩",n:"Carne, bovina, paleta, com gordura, crua",cal:159,p:21.4,c:0.0,f:7.5,g:"proteina"},
+  {e:"🥩",n:"Carne, bovina, paleta, sem gordura, cozida",cal:194,p:29.7,c:0.0,f:7.4,g:"proteina"},
+  {e:"🥩",n:"Carne, bovina, paleta, sem gordura, crua",cal:141,p:21.0,c:0.0,f:5.7,g:"proteina"},
+  {e:"🥩",n:"Carne, bovina, patinho, sem gordura, cru",cal:134,p:21.7,c:0.0,f:4.5,g:"proteina"},
+  {e:"🥩",n:"Carne, bovina, patinho, sem gordura, grelhado",cal:219,p:35.9,c:0.0,f:7.3,g:"proteina"},
+  {e:"🥩",n:"Carne, bovina, peito, sem gordura, cozido",cal:338,p:22.2,c:0.0,f:27.0,g:"gordura"},
+  {e:"🥩",n:"Carne, bovina, peito, sem gordura, cru",cal:259,p:17.6,c:0.0,f:20.4,g:"gordura"},
+  {e:"🥩",n:"Carne, bovina, picanha, com gordura, crua",cal:213,p:18.8,c:0.0,f:14.7,g:"proteina"},
+  {e:"🥩",n:"Carne, bovina, picanha, com gordura, grelhada",cal:289,p:26.4,c:0.0,f:19.5,g:"proteina"},
+  {e:"🥩",n:"Carne, bovina, picanha, sem gordura, crua",cal:134,p:21.2,c:0.0,f:4.7,g:"proteina"},
+  {e:"🥩",n:"Carne, bovina, picanha, sem gordura, grelhada",cal:238,p:31.9,c:0.0,f:11.3,g:"proteina"},
+  {e:"🥩",n:"Carne, bovina, seca, cozida",cal:313,p:26.9,c:0.0,f:21.9,g:"proteina"},
+  {e:"🥩",n:"Carne, bovina, seca, crua",cal:313,p:19.7,c:0.0,f:25.4,g:"gordura"},
+  {e:"🍗",n:"Coxinha de frango, frita",cal:283,p:9.6,c:34.5,f:11.8,g:"carboidrato"},
+  {e:"🥩",n:"Croquete, de carne, cru",cal:246,p:12.0,c:13.9,f:15.6,g:"proteina"},
+  {e:"🥩",n:"Croquete, de carne, frito",cal:347,p:16.9,c:18.1,f:22.7,g:"gordura"},
+  {e:"🍗",n:"Empada de frango, pré-cozida, assada",cal:358,p:6.9,c:47.5,f:15.6,g:"carboidrato"},
+  {e:"🍗",n:"Empada, de frango, pré-cozida",cal:378,p:7.3,c:35.5,f:22.9,g:"carboidrato"},
+  {e:"🍗",n:"Frango, asa, com pele, crua",cal:213,p:18.1,c:0.0,f:15.1,g:"proteina"},
+  {e:"🍗",n:"Frango, caipira, inteiro, com pele, cozido",cal:243,p:23.9,c:0.0,f:15.6,g:"proteina"},
+  {e:"🍗",n:"Frango, caipira, inteiro, sem pele, cozido",cal:196,p:29.6,c:0.0,f:7.7,g:"proteina"},
+  {e:"🍗",n:"Frango, coração, cru",cal:222,p:12.6,c:0.0,f:18.6,g:"proteina"},
+  {e:"🍗",n:"Frango, coração, grelhado",cal:207,p:22.4,c:0.6,f:12.1,g:"proteina"},
+  {e:"🍗",n:"Frango, coxa, com pele, assada",cal:215,p:28.5,c:0.1,f:10.4,g:"proteina"},
+  {e:"🍗",n:"Frango, coxa, com pele, crua",cal:162,p:17.1,c:0.0,f:9.8,g:"proteina"},
+  {e:"🍗",n:"Frango, coxa, sem pele, cozida",cal:167,p:26.9,c:0.0,f:5.8,g:"proteina"},
+  {e:"🍗",n:"Frango, coxa, sem pele, crua",cal:120,p:17.8,c:0.0,f:4.9,g:"proteina"},
+  {e:"🍗",n:"Frango, fígado, cru",cal:106,p:17.6,c:-0.0,f:3.5,g:"proteina"},
+  {e:"🍗",n:"Frango, filé, à milanesa",cal:221,p:28.5,c:7.5,f:7.8,g:"proteina"},
+  {e:"🍗",n:"Frango, inteiro, com pele, cru",cal:226,p:16.4,c:0.0,f:17.3,g:"proteina"},
+  {e:"🍗",n:"Frango, inteiro, sem pele, assado",cal:187,p:28.0,c:0.0,f:7.5,g:"proteina"},
+  {e:"🍗",n:"Frango, inteiro, sem pele, cozido",cal:170,p:25.0,c:0.0,f:7.1,g:"proteina"},
+  {e:"🍗",n:"Frango, inteiro, sem pele, cru",cal:129,p:20.6,c:0.0,f:4.6,g:"proteina"},
+  {e:"🍗",n:"Frango, peito, com pele, assado",cal:212,p:33.4,c:0.0,f:7.6,g:"proteina"},
+  {e:"🍗",n:"Frango, peito, com pele, cru",cal:150,p:20.8,c:0.0,f:6.7,g:"proteina"},
+  {e:"🍗",n:"Frango, peito, sem pele, cozido",cal:163,p:31.5,c:0.0,f:3.2,g:"proteina"},
+  {e:"🍗",n:"Frango, peito, sem pele, cru",cal:119,p:21.5,c:0.0,f:3.0,g:"proteina"},
+  {e:"🍗",n:"Frango, peito, sem pele, grelhado",cal:159,p:32.0,c:0.0,f:2.5,g:"proteina"},
+  {e:"🍗",n:"Frango, sobrecoxa, com pele, assada",cal:260,p:28.7,c:0.0,f:15.2,g:"proteina"},
+  {e:"🍗",n:"Frango, sobrecoxa, com pele, crua",cal:254,p:15.5,c:0.0,f:20.9,g:"gordura"},
+  {e:"🍗",n:"Frango, sobrecoxa, sem pele, assada",cal:233,p:29.2,c:0.0,f:12.0,g:"proteina"},
+  {e:"🍗",n:"Frango, sobrecoxa, sem pele, crua",cal:162,p:17.6,c:0.0,f:9.6,g:"proteina"},
+  {e:"🥩",n:"Hambúrguer, bovino, cru",cal:215,p:13.2,c:4.2,f:16.2,g:"proteina"},
+  {e:"🥩",n:"Hambúrguer, bovino, frito",cal:258,p:20.0,c:6.3,f:17.0,g:"proteina"},
+  {e:"🥩",n:"Hambúrguer, bovino, grelhado",cal:210,p:13.2,c:11.3,f:12.4,g:"proteina"},
+  {e:"🍗",n:"Lingüiça, frango, crua",cal:218,p:14.2,c:0.0,f:17.4,g:"proteina"},
+  {e:"🍗",n:"Lingüiça, frango, frita",cal:246,p:18.3,c:0.0,f:18.5,g:"proteina"},
+  {e:"🍗",n:"Lingüiça, frango, grelhada",cal:244,p:18.2,c:0.0,f:18.4,g:"proteina"},
+  {e:"🥩",n:"Lingüiça, porco, crua",cal:227,p:16.1,c:0.0,f:17.6,g:"proteina"},
+  {e:"🥩",n:"Lingüiça, porco, frita",cal:280,p:20.5,c:0.0,f:21.3,g:"gordura"},
+  {e:"🥩",n:"Lingüiça, porco, grelhada",cal:296,p:23.2,c:0.0,f:21.9,g:"proteina"},
+  {e:"🥩",n:"Mortadela",cal:269,p:12.0,c:5.8,f:21.6,g:"gordura"},
+  {e:"🦃",n:"Peru, congelado, assado",cal:163,p:26.2,c:0.0,f:5.7,g:"proteina"},
+  {e:"🦃",n:"Peru, congelado, cru",cal:94,p:18.1,c:0.0,f:1.8,g:"proteina"},
+  {e:"🥩",n:"Porco, bisteca, crua",cal:164,p:21.5,c:0.0,f:8.0,g:"proteina"},
+  {e:"🥩",n:"Porco, bisteca, frita",cal:311,p:33.7,c:0.0,f:18.5,g:"proteina"},
+  {e:"🥩",n:"Porco, bisteca, grelhada",cal:280,p:28.9,c:0.0,f:17.4,g:"proteina"},
+  {e:"🥩",n:"Porco, costela, assada",cal:402,p:30.2,c:0.0,f:30.3,g:"gordura"},
+  {e:"🥩",n:"Porco, costela, crua",cal:256,p:18.0,c:0.0,f:19.8,g:"proteina"},
+  {e:"🥩",n:"Porco, lombo, assado",cal:210,p:35.7,c:0.0,f:6.4,g:"proteina"},
+  {e:"🥩",n:"Porco, lombo, cru",cal:176,p:22.6,c:0.0,f:8.8,g:"proteina"},
+  {e:"🥩",n:"Porco, orelha, salgada, crua",cal:258,p:18.5,c:0.0,f:19.9,g:"proteina"},
+  {e:"🥩",n:"Porco, pernil, assado",cal:262,p:32.1,c:0.0,f:13.9,g:"proteina"},
+  {e:"🥩",n:"Porco, pernil, cru",cal:186,p:20.1,c:0.0,f:11.1,g:"proteina"},
+  {e:"🥩",n:"Porco, rabo, salgado, cru",cal:377,p:15.6,c:0.0,f:34.5,g:"gordura"},
+  {e:"🥩",n:"Presunto, com capa de gordura",cal:128,p:14.4,c:1.4,f:6.8,g:"proteina"},
+  {e:"🥩",n:"Presunto, sem capa de gordura",cal:94,p:14.3,c:2.1,f:2.7,g:"proteina"},
+  {e:"🥩",n:"Quibe, assado",cal:136,p:14.6,c:12.9,f:2.7,g:"proteina"},
+  {e:"🥩",n:"Quibe, cru",cal:110,p:12.4,c:10.8,f:1.7,g:"proteina"},
+  {e:"🥩",n:"Quibe, frito",cal:254,p:14.9,c:12.3,f:15.8,g:"proteina"},
+  {e:"🥩",n:"Salame",cal:398,p:25.8,c:2.9,f:30.6,g:"gordura"},
+  {e:"🥩",n:"Toucinho, cru",cal:592,p:11.5,c:0.0,f:60.3,g:"gordura"},
+  {e:"🥩",n:"Toucinho, frito",cal:697,p:27.3,c:0.0,f:64.3,g:"gordura"},
+  {e:"🥛",n:"Bebida láctea, pêssego",cal:55,p:2.1,c:7.6,f:1.9,g:"proteina"},
+  {e:"🥛",n:"Creme de Leite",cal:222,p:1.5,c:4.5,f:22.5,g:"gordura"},
+  {e:"🥛",n:"Iogurte, natural",cal:52,p:4.1,c:1.9,f:3.0,g:"proteina"},
+  {e:"🥛",n:"Iogurte, natural, desnatado",cal:42,p:3.8,c:5.8,f:0.3,g:"proteina"},
+  {e:"🍓",n:"Iogurte, sabor morango",cal:70,p:2.7,c:9.7,f:2.3,g:"proteina"},
+  {e:"🥛",n:"Iogurte, sabor pêssego",cal:68,p:2.5,c:9.4,f:2.3,g:"proteina"},
+  {e:"🥛",n:"Leite, condensado",cal:313,p:7.7,c:57.0,f:6.7,g:"carboidrato"},
+  {e:"🥛",n:"Leite, de cabra",cal:66,p:3.1,c:5.2,f:3.8,g:"proteina"},
+  {e:"🥛",n:"Leite, de vaca, achocolatado",cal:83,p:2.1,c:14.2,f:2.2,g:"proteina"},
+  {e:"🥛",n:"Leite, de vaca, desnatado, pó",cal:362,p:34.7,c:53.0,f:0.9,g:"carboidrato"},
+  {e:"🥛",n:"Leite, de vaca, integral, pó",cal:497,p:25.4,c:39.2,f:26.9,g:"carboidrato"},
+  {e:"🥛",n:"Leite, fermentado",cal:70,p:1.9,c:15.7,f:0.1,g:"carboidrato"},
+  {e:"🧀",n:"Queijo, minas, frescal",cal:264,p:17.4,c:3.2,f:20.2,g:"gordura"},
+  {e:"🧀",n:"Queijo, minas, meia cura",cal:321,p:21.2,c:3.6,f:24.6,g:"gordura"},
+  {e:"🧀",n:"Queijo, mozarela",cal:330,p:22.6,c:3.0,f:25.2,g:"gordura"},
+  {e:"🧀",n:"Queijo, parmesão",cal:453,p:35.6,c:1.7,f:33.5,g:"proteina"},
+  {e:"🧀",n:"Queijo, pasteurizado",cal:303,p:9.4,c:5.7,f:27.4,g:"gordura"},
+  {e:"🍓",n:"Queijo, petit suisse, morango",cal:121,p:5.8,c:18.5,f:2.8,g:"carboidrato"},
+  {e:"🧀",n:"Queijo, prato",cal:360,p:22.7,c:1.9,f:29.1,g:"gordura"},
+  {e:"🧀",n:"Queijo, requeijão, cremoso",cal:257,p:9.6,c:2.4,f:23.4,g:"gordura"},
+  {e:"🧀",n:"Queijo, ricota",cal:140,p:12.6,c:3.8,f:8.1,g:"proteina"},
+  {e:"🥤",n:"Bebida isotônica, sabores variados",cal:26,p:0.0,c:6.4,f:0.0,g:"carboidrato"},
+  {e:"☕",n:"Café, infusão 10%",cal:9,p:0.7,c:1.5,f:0.1,g:"carboidrato"},
+  {e:"🥤",n:"Cana, aguardente 1",cal:216,p:0.0,c:0.0,f:0.0,g:"carboidrato"},
+  {e:"🥤",n:"Cana, caldo de",cal:65,p:0.0,c:18.2,f:0.0,g:"carboidrato"},
+  {e:"🥤",n:"Cerveja, pilsen 2",cal:41,p:0.6,c:3.3,f:0.0,g:"carboidrato"},
+  {e:"🍵",n:"Chá, erva-doce, infusão 5%",cal:1,p:0.0,c:0.4,f:0.0,g:"carboidrato"},
+  {e:"🍵",n:"Chá, mate, infusão 5%",cal:3,p:0.0,c:0.6,f:0.1,g:"carboidrato"},
+  {e:"🍵",n:"Chá, preto, infusão 5%",cal:2,p:0.0,c:0.6,f:0.0,g:"carboidrato"},
+  {e:"🥥",n:"Coco, água de",cal:22,p:0.0,c:5.3,f:0.0,g:"carboidrato"},
+  {e:"🥤",n:"Refrigerante, tipo água tônica",cal:31,p:0.0,c:8.0,f:0.0,g:"carboidrato"},
+  {e:"🥤",n:"Refrigerante, tipo cola",cal:34,p:0.0,c:8.7,f:0.0,g:"carboidrato"},
+  {e:"🥤",n:"Refrigerante, tipo guaraná",cal:39,p:0.0,c:10.0,f:0.0,g:"carboidrato"},
+  {e:"🍊",n:"Refrigerante, tipo laranja",cal:46,p:0.0,c:11.8,f:0.0,g:"carboidrato"},
+  {e:"🥤",n:"Refrigerante, tipo limão",cal:40,p:0.0,c:10.3,f:0.0,g:"carboidrato"},
+  {e:"🧀",n:"Omelete, de queijo",cal:268,p:15.6,c:0.4,f:22.0,g:"gordura"},
+  {e:"🥚",n:"Ovo, de codorna, inteiro, cru",cal:177,p:13.7,c:0.8,f:12.7,g:"proteina"},
+  {e:"🍗",n:"Ovo, de galinha, clara, cozida/10minutos",cal:59,p:13.4,c:0.0,f:0.1,g:"proteina"},
+  {e:"🍗",n:"Ovo, de galinha, gema, cozida/10minutos",cal:353,p:15.9,c:1.6,f:30.8,g:"gordura"},
+  {e:"🍗",n:"Ovo, de galinha, inteiro, cozido/10minutos",cal:146,p:13.3,c:0.6,f:9.5,g:"proteina"},
+  {e:"🍗",n:"Ovo, de galinha, inteiro, cru",cal:143,p:13.0,c:1.6,f:8.9,g:"proteina"},
+  {e:"🍗",n:"Ovo, de galinha, inteiro, frito",cal:240,p:15.6,c:1.2,f:18.6,g:"proteina"},
+  {e:"🍬",n:"Achocolatado, pó",cal:401,p:4.2,c:91.2,f:2.2,g:"carboidrato"},
+  {e:"🍬",n:"Açúcar, cristal",cal:387,p:0.3,c:99.6,f:0.0,g:"carboidrato"},
+  {e:"🍬",n:"Açúcar, mascavo",cal:369,p:0.8,c:94.5,f:0.1,g:"carboidrato"},
+  {e:"🍬",n:"Açúcar, refinado",cal:387,p:0.3,c:99.5,f:0.0,g:"carboidrato"},
+  {e:"🥛",n:"Chocolate, ao leite",cal:540,p:7.2,c:59.6,f:30.3,g:"carboidrato"},
+  {e:"🥛",n:"Chocolate, ao leite, com castanha do Pará",cal:559,p:7.4,c:55.4,f:34.2,g:"carboidrato"},
+  {e:"🥛",n:"Chocolate, ao leite, dietético",cal:557,p:6.9,c:56.3,f:33.8,g:"carboidrato"},
+  {e:"🍫",n:"Chocolate, meio amargo",cal:475,p:4.9,c:62.4,f:29.9,g:"carboidrato"},
+  {e:"🍬",n:"Cocada branca",cal:449,p:1.1,c:81.4,f:13.6,g:"carboidrato"},
+  {e:"🍬",n:"Doce, de abóbora, cremoso",cal:199,p:0.9,c:54.6,f:0.2,g:"carboidrato"},
+  {e:"🥛",n:"Doce, de leite, cremoso",cal:306,p:5.5,c:59.5,f:6.0,g:"carboidrato"},
+  {e:"🍬",n:"Geléia, mocotó, natural",cal:106,p:2.1,c:24.2,f:0.1,g:"carboidrato"},
+  {e:"🌽",n:"Glicose de milho",cal:292,p:0.0,c:79.4,f:0.0,g:"carboidrato"},
+  {e:"🍬",n:"Maria mole",cal:301,p:3.8,c:73.6,f:0.2,g:"carboidrato"},
+  {e:"🥥",n:"Maria mole, coco queimado",cal:307,p:3.9,c:75.1,f:0.1,g:"carboidrato"},
+  {e:"🍯",n:"Marmelada",cal:257,p:0.4,c:70.8,f:0.1,g:"carboidrato"},
+  {e:"🍯",n:"Mel, de abelha",cal:309,p:0.0,c:84.0,f:0.0,g:"carboidrato"},
+  {e:"🍯",n:"Melado",cal:296,p:0.0,c:76.6,f:0.0,g:"carboidrato"},
+  {e:"🍬",n:"Quindim",cal:411,p:4.7,c:46.3,f:24.4,g:"carboidrato"},
+  {e:"🍬",n:"Rapadura",cal:352,p:1.0,c:90.8,f:0.1,g:"carboidrato"},
+  {e:"☕",n:"Café, pó, torrado",cal:419,p:14.7,c:65.8,f:11.9,g:"carboidrato"},
+  {e:"🍽",n:"Capuccino, pó",cal:417,p:11.3,c:73.6,f:8.6,g:"carboidrato"},
+  {e:"🍽",n:"Fermento em pó, químico",cal:90,p:0.5,c:43.9,f:0.1,g:"carboidrato"},
+  {e:"🍽",n:"Fermento, biológico, levedura, tablete",cal:90,p:17.0,c:7.7,f:1.5,g:"proteina"},
+  {e:"🍽",n:"Gelatina, sabores variados, pó",cal:380,p:8.9,c:89.2,f:0.0,g:"carboidrato"},
+  {e:"🍽",n:"Shoyu",cal:61,p:3.3,c:11.6,f:0.3,g:"carboidrato"},
+  {e:"🍽",n:"Tempero a base de sal",cal:21,p:2.7,c:2.1,f:0.3,g:"carboidrato"},
+  {e:"📦",n:"Azeitona, preta, conserva",cal:194,p:1.2,c:5.5,f:20.3,g:"gordura"},
+  {e:"📦",n:"Azeitona, verde, conserva",cal:137,p:0.9,c:4.1,f:14.2,g:"carboidrato"},
+  {e:"🍵",n:"Chantilly, spray, com gordura vegetal",cal:315,p:0.5,c:16.9,f:27.3,g:"gordura"},
+  {e:"🥥",n:"Leite, de coco",cal:166,p:1.0,c:2.2,f:18.4,g:"carboidrato"},
+  {e:"🥚",n:"Maionese, tradicional com ovos",cal:302,p:0.6,c:7.9,f:30.5,g:"gordura"},
+  {e:"🍲",n:"Acarajé",cal:289,p:8.3,c:19.1,f:19.9,g:"carboidrato"},
+  {e:"🍚",n:"Arroz carreteiro",cal:154,p:10.8,c:11.6,f:7.1,g:"carboidrato"},
+  {e:"🍚",n:"Baião de dois, arroz e feijão-de-corda",cal:136,p:6.2,c:20.4,f:3.2,g:"carboidrato"},
+  {e:"🍲",n:"Barreado",cal:165,p:18.3,c:0.2,f:9.5,g:"proteina"},
+  {e:"🍲",n:"Bife à cavalo, com contra filé",cal:291,p:23.7,c:0.0,f:21.1,g:"proteina"},
+  {e:"🍚",n:"Bolinho de arroz",cal:274,p:8.0,c:41.7,f:8.3,g:"carboidrato"},
+  {e:"🦐",n:"Camarão à baiana",cal:101,p:7.9,c:3.2,f:6.0,g:"carboidrato"},
+  {e:"🥬",n:"Charuto, de repolho",cal:78,p:6.8,c:10.1,f:1.1,g:"carboidrato"},
+  {e:"🌽",n:"Cuscuz, de milho, cozido com sal",cal:114,p:2.2,c:25.3,f:0.7,g:"carboidrato"},
+  {e:"🍲",n:"Cuscuz, paulista",cal:142,p:2.6,c:22.5,f:4.6,g:"carboidrato"},
+  {e:"🍲",n:"Cuxá, molho",cal:80,p:5.6,c:5.7,f:3.6,g:"carboidrato"},
+  {e:"🍲",n:"Dobradinha",cal:124,p:19.8,c:0.0,f:4.4,g:"proteina"},
+  {e:"🥩",n:"Estrogonofe de carne",cal:173,p:15.0,c:3.0,f:10.8,g:"carboidrato"},
+  {e:"🍗",n:"Estrogonofe de frango",cal:157,p:17.6,c:2.6,f:8.0,g:"proteina"},
+  {e:"🫘",n:"Feijão tropeiro mineiro",cal:152,p:10.2,c:19.6,f:6.8,g:"carboidrato"},
+  {e:"🍲",n:"L",cal:117,p:8.7,c:11.6,f:6.5,g:"carboidrato"},
+  {e:"🍗",n:"Frango, com açafrão",cal:113,p:9.7,c:4.1,f:6.2,g:"carboidrato"},
+  {e:"🎂",n:"Macarrão, molho bolognesa",cal:120,p:4.9,c:22.5,f:0.9,g:"carboidrato"},
+  {e:"🍲",n:"Maniçoba",cal:134,p:10.0,c:3.4,f:8.7,g:"carboidrato"},
+  {e:"🍲",n:"Quibebe",cal:86,p:8.6,c:6.6,f:2.7,g:"carboidrato"},
+  {e:"🍲",n:"Salada, de legumes, com maionese",cal:96,p:1.1,c:8.9,f:7.0,g:"carboidrato"},
+  {e:"🍲",n:"Salada, de legumes, cozida no vapor",cal:35,p:2.0,c:7.1,f:0.3,g:"carboidrato"},
+  {e:"🍗",n:"Salpicão, de frango",cal:148,p:13.9,c:4.6,f:7.8,g:"carboidrato"},
+  {e:"🍲",n:"Sarapatel",cal:123,p:18.5,c:1.1,f:4.4,g:"proteina"},
+  {e:"🍲",n:"Tabule",cal:58,p:2.0,c:10.6,f:1.2,g:"carboidrato"},
+  {e:"🍲",n:"Tacacá",cal:47,p:7.0,c:3.4,f:0.4,g:"carboidrato"},
+  {e:"🫓",n:"Tapioca, com manteiga",cal:348,p:0.1,c:63.6,f:10.9,g:"carboidrato"},
+  {e:"🍲",n:"Tucupi, com pimenta-de-cheiro",cal:27,p:2.1,c:4.7,f:0.3,g:"carboidrato"},
+  {e:"🍲",n:"Vaca atolada",cal:145,p:5.1,c:10.1,f:9.3,g:"carboidrato"},
+  {e:"🍲",n:"Vatapá",cal:255,p:6.0,c:9.7,f:23.2,g:"gordura"},
+  {e:"🍲",n:"Virado à paulista",cal:307,p:10.2,c:14.1,f:25.6,g:"gordura"},
+  {e:"🍲",n:"Yakisoba",cal:113,p:7.5,c:18.3,f:2.6,g:"carboidrato"},
+  {e:"🫘",n:"Amendoim, grão, cru",cal:544,p:27.2,c:20.3,f:43.9,g:"gordura"},
+  {e:"🥜",n:"Amendoim, torrado, salgado",cal:606,p:22.5,c:18.7,f:54.0,g:"gordura"},
+  {e:"🟢",n:"Ervilha, em vagem",cal:88,p:7.5,c:14.2,f:0.5,g:"proteina"},
+  {e:"🟢",n:"Ervilha, enlatada, drenada",cal:74,p:4.6,c:13.4,f:0.4,g:"proteina"},
+  {e:"🫘",n:"Feijão, carioca, cozido",cal:76,p:4.8,c:13.6,f:0.5,g:"proteina"},
+  {e:"🫘",n:"Feijão, carioca, cru",cal:329,p:20.0,c:61.2,f:1.3,g:"carboidrato"},
+  {e:"🫘",n:"Feijão, fradinho, cozido",cal:78,p:5.1,c:13.5,f:0.6,g:"proteina"},
+  {e:"🫘",n:"Feijão, fradinho, cru",cal:339,p:20.2,c:61.2,f:2.4,g:"carboidrato"},
+  {e:"🫘",n:"Feijão, jalo, cozido",cal:93,p:6.1,c:16.5,f:0.5,g:"carboidrato"},
+  {e:"🫘",n:"Feijão, jalo, cru",cal:328,p:20.1,c:61.5,f:0.9,g:"carboidrato"},
+  {e:"🫘",n:"Feijão, preto, cozido",cal:77,p:4.5,c:14.0,f:0.5,g:"proteina"},
+  {e:"🫘",n:"Feijão, preto, cru",cal:324,p:21.3,c:58.8,f:1.2,g:"carboidrato"},
+  {e:"🫘",n:"Feijão, rajado, cozido",cal:85,p:5.5,c:15.3,f:0.4,g:"carboidrato"},
+  {e:"🫘",n:"Feijão, rajado, cru",cal:326,p:17.3,c:62.9,f:1.2,g:"carboidrato"},
+  {e:"🫘",n:"Feijão, rosinha, cozido",cal:68,p:4.5,c:11.8,f:0.5,g:"proteina"},
+  {e:"🫘",n:"Feijão, rosinha, cru",cal:337,p:20.9,c:62.2,f:1.3,g:"carboidrato"},
+  {e:"🫘",n:"Feijão, roxo, cozido",cal:77,p:5.7,c:12.9,f:0.5,g:"proteina"},
+  {e:"🫘",n:"Feijão, roxo, cru",cal:331,p:22.2,c:60.0,f:1.2,g:"carboidrato"},
+  {e:"🫘",n:"Grão-de-bico, cru",cal:355,p:21.2,c:57.9,f:5.4,g:"carboidrato"},
+  {e:"🫘",n:"Guandu, cru",cal:344,p:19.0,c:64.0,f:2.1,g:"carboidrato"},
+  {e:"🫘",n:"Lentilha, cozida",cal:93,p:6.3,c:16.3,f:0.5,g:"carboidrato"},
+  {e:"🫘",n:"Lentilha, crua",cal:339,p:23.2,c:62.0,f:0.8,g:"carboidrato"},
+  {e:"🥜",n:"Paçoca, amendoim",cal:487,p:16.0,c:52.4,f:26.1,g:"carboidrato"},
+  {e:"🥜",n:"Pé-de-moleque, amendoim",cal:503,p:13.2,c:54.7,f:28.0,g:"carboidrato"},
+  {e:"🌾",n:"Soja, farinha",cal:404,p:36.0,c:38.4,f:14.6,g:"carboidrato"},
+  {e:"🌱",n:"Soja, extrato solúvel, natural, fluido",cal:39,p:2.4,c:4.3,f:1.6,g:"proteina"},
+  {e:"🌱",n:"Soja, extrato solúvel, pó",cal:459,p:35.7,c:28.5,f:26.2,g:"proteina"},
+  {e:"🧀",n:"Soja, queijo (tofu)",cal:64,p:6.6,c:2.1,f:4.0,g:"proteina"},
+  {e:"🫘",n:"Tremoço, cru",cal:381,p:33.6,c:43.8,f:10.3,g:"carboidrato"},
+  {e:"🫘",n:"Tremoço, em conserva",cal:121,p:11.1,c:12.4,f:3.8,g:"proteina"},
+  {e:"🌰",n:"Amêndoa, torrada, salgada",cal:581,p:18.6,c:29.5,f:47.3,g:"gordura"},
+  {e:"🌰",n:"Castanha-de-caju, torrada, salgada",cal:570,p:18.5,c:29.1,f:46.3,g:"gordura"},
+  {e:"🌰",n:"Castanha-do-Brasil, crua",cal:643,p:14.5,c:15.1,f:63.5,g:"gordura"},
+  {e:"🥥",n:"Coco, cru",cal:406,p:3.7,c:10.4,f:42.0,g:"gordura"},
+  {e:"🌾",n:"Farinha, de mesocarpo de babaçu, crua",cal:329,p:1.4,c:79.2,f:0.2,g:"carboidrato"},
+  {e:"🌰",n:"Gergelim, semente",cal:584,p:21.2,c:21.6,f:50.4,g:"gordura"},
+  {e:"🌰",n:"Linhaça, semente",cal:495,p:14.1,c:43.3,f:32.3,g:"carboidrato"},
+  {e:"🌰",n:"Pinhão, cozido",cal:174,p:3.0,c:43.9,f:0.7,g:"carboidrato"},
+  {e:"🌰",n:"Pupunha, cozida",cal:218,p:2.5,c:29.6,f:12.8,g:"carboidrato"},
+  {e:"🌰",n:"Noz, crua",cal:620,p:14.0,c:18.4,f:59.4,g:"gordura"}
+];
+</script>
+<script>
+
+var TACO_DATA = null; // will be set below
+
+// STATE
+var selA=null, selB=null, selLog=null;
+var showAll1=false, showAll2=false, showAllLog=false;
+var q1Str='', q2Str='', sLogStr='';
+var catF1='', catF2='';
+var hist = JSON.parse(localStorage.getItem('rf_hist')||'[]');
+var dailyLog = [];
+var dailyGoal = parseInt(localStorage.getItem('rf_daily_goal')||'0');
+var TODAY = new Date().toDateString();
+var stored = localStorage.getItem('rf_log_'+TODAY);
+if(stored) dailyLog = JSON.parse(stored);
+
+// long-press stepper
+var _adjT=null, _adjI=null;
+function startAdj(which,dir){
+  doAdj(which,dir);
+  _adjT=setTimeout(function(){_adjI=setInterval(function(){doAdj(which,dir);},80);},350);
+}
+function stopAdj(){clearTimeout(_adjT);clearInterval(_adjI);}
+function doAdj(which,dir){
+  var el;
+  if(which===1){el=document.getElementById('q1');el.value=Math.max(1,Math.min(2000,(parseInt(el.value)||100)+dir*5));calcQ(1);}
+  else if(which===2){el=document.getElementById('q2');el.value=Math.max(1,Math.min(2000,(parseInt(el.value)||100)+dir*5));calcQ(2);}
+  else{el=document.getElementById('qLog');el.value=Math.max(1,Math.min(3000,(parseInt(el.value)||100)+dir*5));calcQLog();}
+}
+
+// BOOT
+window.addEventListener('DOMContentLoaded',function(){
+  TACO_DATA = TACO; // TACO defined by inline script above
+  applyTheme(localStorage.getItem('rf_theme')||'light');
+  loadName();
+  if(dailyGoal) document.getElementById('dgInput').value=dailyGoal;
+  buildCats('cats1');
+  buildCats('cats2');
+  renderList1();
+  renderLog();
+  renderHist();
+  if(!localStorage.getItem('rf_student_name')) setTimeout(openNameModal,900);
+});
+
+// THEME
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  document.getElementById('themeBtn').textContent = t==='dark' ? '☀️' : '🌙';
+}
+function toggleTheme(){
+  var t = document.documentElement.getAttribute('data-theme')==='dark' ? 'light' : 'dark';
+  localStorage.setItem('rf_theme',t);
+  applyTheme(t);
+}
+
+// TABS
+function go(name){
+  var tabs=['sub','log','plan','hist'];
+  for(var i=0;i<tabs.length;i++){
+    document.getElementById('tab-'+tabs[i]).style.display = tabs[i]===name ? '' : 'none';
+    document.querySelector('[data-tab="'+tabs[i]+'"]').classList.toggle('on', tabs[i]===name);
+  }
+  if(name==='hist') renderHist();
+}
+
+// NAME MODAL
+function loadName(){
+  var n=localStorage.getItem('rf_student_name')||'';
+  document.getElementById('sNameEl').textContent = n||'Adicionar nome';
+  document.getElementById('studentPill').classList.toggle('named',!!n);
+}
+function openNameModal(){
+  document.getElementById('nameIn').value = localStorage.getItem('rf_student_name')||'';
+  document.getElementById('nameModal').classList.add('open');
+  setTimeout(function(){document.getElementById('nameIn').focus();},220);
+}
+function closeModal(){document.getElementById('nameModal').classList.remove('open');}
+function saveName(){
+  var n=document.getElementById('nameIn').value.trim();
+  if(n) localStorage.setItem('rf_student_name',n);
+  else localStorage.removeItem('rf_student_name');
+  closeModal();
+  loadName();
+  if(n) showToast('Olá, '+n+'! 👋');
+}
+
+// HELPERS
+function norm(s){return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');}
+function searchTACO(q,cat){
+  var nq=norm(q);
+  return TACO.filter(function(f){
+    if(cat && norm(f.g)!==norm(cat)) return false;
+    if(!nq) return true;
+    return norm(f.n).includes(nq);
+  });
+}
+function uniqueCats(){
+  var seen={}, cats=[];
+  TACO.forEach(function(f){if(f.g && !seen[f.g]){seen[f.g]=1;cats.push(f.g);}});
+  return cats.sort();
+}
+function mac(food,g){
+  var r=g/100;
+  return {
+    kcal: Math.round(food.cal*r*10)/10,
+    p: Math.round(food.p*r*10)/10,
+    c: Math.round(food.c*r*10)/10,
+    f: Math.round(food.f*r*10)/10
+  };
+}
+function showToast(msg){
+  var el=document.getElementById('toast');
+  el.textContent=msg;
+  el.classList.add('show');
+  setTimeout(function(){el.classList.remove('show');},2800);
+}
+
+// CATEGORY TAGS
+function buildCats(containerId){
+  var el=document.getElementById(containerId);
+  var cats=uniqueCats();
+  var html='<button class="ftag on" onclick="setCat(this,\'\',\''+containerId+'\')">Todos</button>';
+  for(var i=0;i<cats.length;i++){
+    var c=cats[i].replace(/"/g,'&quot;');
+    html+='<button class="ftag" onclick="setCat(this,\''+c+'\',\''+containerId+'\')">'+cats[i]+'</button>';
+  }
+  el.innerHTML=html;
+}
+function setCat(btn,cat,containerId){
+  var container=document.getElementById(containerId);
+  var btns=container.querySelectorAll('.ftag');
+  for(var i=0;i<btns.length;i++) btns[i].classList.remove('on');
+  btn.classList.add('on');
+  if(containerId==='cats1'){catF1=cat;showAll1=false;renderList1();}
+  else{catF2=cat;showAll2=false;renderList2();}
+}
+
+// FOOD CARD HTML
+function cardHTML(f,idx,clickFn){
+  return '<div class="fcard" onclick="'+clickFn+'('+idx+')">'
+    +'<div class="femoji">'+f.e+'</div>'
+    +'<div style="flex:1;min-width:0"><div class="fname">'+f.n+'</div><div class="fmeta">'+f.g+'</div></div>'
+    +'<div class="fcal">'+f.cal+'<small>kcal/100g</small></div>'
+    +'</div>';
+}
+function swapCardHTML(f,idx){
+  var calA=selA?selA.cal:0;
+  var diff=f.cal-calA;
+  var cls=diff<0?'neg':diff>0?'pos':'zero';
+  var lbl=diff===0?'= igual':diff<0?'−'+Math.abs(diff)+' kcal':'+'+diff+' kcal';
+  return '<div class="scard" onclick="pickB('+idx+')">'
+    +'<div class="femoji">'+f.e+'</div>'
+    +'<div style="flex:1;min-width:0"><div class="sc-name">'+f.n+'</div><div class="sc-meta">'+f.g+'</div></div>'
+    +'<div style="text-align:right;flex-shrink:0">'
+    +'<div class="sc-diff '+cls+'">'+lbl+'</div>'
+    +'<div style="font-size:10px;color:var(--text4)">'+f.cal+' kcal/100g</div>'
+    +'</div></div>';
+}
+
+// LIST 1
+function onS1(){q1Str=document.getElementById('s1').value;showAll1=false;renderList1();}
+function renderList1(){
+  if(selA) return;
+  var el=document.getElementById('list1');
+  var res=searchTACO(q1Str,catF1);
+  if(!res.length){el.innerHTML='<div class="empty"><div class="empty-icon">🔍</div><p>Nenhum alimento encontrado</p></div>';return;}
+  var shown=showAll1?res:res.slice(0,8);
+  var html='';
+  for(var i=0;i<shown.length;i++) html+=cardHTML(shown[i],TACO.indexOf(shown[i]),'pickA');
+  if(!showAll1&&res.length>8) html+='<button class="more-btn" onclick="showAll1=true;renderList1()">Ver mais '+(res.length-8)+' alimentos ↓</button>';
+  el.innerHTML=html;
+}
+function pickA(i){
+  selA=TACO[i];
+  document.getElementById('s1').value=selA.n;
+  document.getElementById('sb1').style.display='none';
+  document.getElementById('cats1').style.display='none';
+  document.getElementById('list1').innerHTML='';
+  document.getElementById('qb1').style.display='';
+  document.getElementById('swDiv').style.display='';
+  document.getElementById('step2').style.display='';
+  document.getElementById('ban1e').textContent=selA.e;
+  document.getElementById('ban1t').textContent=selA.n;
+  calcQ(1);
+  buildCats('cats2');
+  renderList2();
+}
+function clearA(){
+  selA=null; selB=null;
+  document.getElementById('sb1').style.display='';
+  document.getElementById('cats1').style.display='';
+  document.getElementById('s1').value=''; q1Str=''; catF1='';
+  document.getElementById('qb1').style.display='none';
+  document.getElementById('swDiv').style.display='none';
+  document.getElementById('step2').style.display='none';
+  document.getElementById('cmpWrap').style.display='none';
+  document.getElementById('list1').innerHTML='';
+  buildCats('cats1');
+  renderList1();
+}
+function calcQ(n){
+  var food=n===1?selA:selB;
+  if(!food) return;
+  var g=parseInt(document.getElementById('q'+n).value)||100;
+  var m=mac(food,g);
+  document.getElementById('qk'+n).textContent=m.kcal;
+  document.getElementById('qp'+n).textContent=m.p+'g';
+  document.getElementById('qc'+n).textContent=m.c+'g';
+  document.getElementById('qf'+n).textContent=m.f+'g';
+  if(selA&&selB) renderCompare();
+}
+
+// LIST 2
+function onS2(){q2Str=document.getElementById('s2').value;showAll2=false;renderList2();}
+function renderList2(){
+  if(!selA||selB) return;
+  var el=document.getElementById('list2');
+  var res=searchTACO(q2Str,catF2).filter(function(f){return f!==selA;});
+  if(!res.length){el.innerHTML='<div class="empty"><div class="empty-icon">🔍</div><p>Nenhum alimento encontrado</p></div>';return;}
+  var shown=showAll2?res:res.slice(0,8);
+  var html='';
+  for(var i=0;i<shown.length;i++) html+=swapCardHTML(shown[i],TACO.indexOf(shown[i]));
+  if(!showAll2&&res.length>8) html+='<button class="more-btn" onclick="showAll2=true;renderList2()">Ver mais '+(res.length-8)+' alimentos ↓</button>';
+  el.innerHTML=html;
+}
+function pickB(i){
+  selB=TACO[i];
+  document.getElementById('sb2').style.display='none';
+  document.getElementById('cats2').style.display='none';
+  document.getElementById('list2').innerHTML='';
+  document.getElementById('ban2e').textContent=selB.e;
+  document.getElementById('ban2t').textContent=selB.n;
+  document.getElementById('cmpWrap').style.display='';
+  document.getElementById('q2').value=document.getElementById('q1').value;
+  calcQ(2);
+  renderCompare();
+}
+function clearB(){
+  selB=null;
+  document.getElementById('sb2').style.display='';
+  document.getElementById('cats2').style.display='';
+  document.getElementById('cmpWrap').style.display='none';
+  document.getElementById('list2').innerHTML='';
+  buildCats('cats2');
+  renderList2();
+}
+
+// COMPARE
+function renderCompare(){
+  if(!selA||!selB) return;
+  var g1=parseInt(document.getElementById('q1').value)||100;
+  var g2=parseInt(document.getElementById('q2').value)||100;
+  var mA=mac(selA,g1), mB=mac(selB,g2);
+  var diff=Math.round((mB.kcal-mA.kcal)*10)/10;
+  var pct=mA.kcal>0?Math.round(Math.abs(diff)/mA.kcal*100):0;
+  var save=diff<0, same=diff===0;
+  function maxOf(a,b){return Math.max(a,b,1);}
+  function barRow(va,vb,maxV,unit){
+    var pa=Math.round(va/maxV*100), pb=Math.round(vb/maxV*100);
+    return '<div class="cr-row">'
+      +'<div class="cr-lblrow"><span>'+selA.e+' '+va+unit+'</span><span>'+selB.e+' '+vb+unit+'</span></div>'
+      +'<div class="cr-bar"><div class="cr-fill fill-a" style="width:'+pa+'%"></div></div>'
+      +'<div class="cr-bar"><div class="cr-fill fill-b" style="width:'+pb+'%"></div></div>'
+      +'</div>';
+  }
+  var weekly=Math.round(diff*7);
+  var monthly=Math.round(diff*30);
+  var kgM=(monthly/7700).toFixed(2);
+  var sumCls=same?'same':save?'save':'gain';
+  var sumVal=same?'±0':save?'−'+Math.abs(diff):'+'+diff;
+  var sumLbl=same?'Equivalente calórico':save?'economizadas por porção ('+pct+'% a menos)':'a mais por porção ('+pct+'% a mais)';
+  var ecoSign=save?'−':diff>0?'+':'';
+  var pesoSign=save?'▼ −':'▲ +';
+  document.getElementById('cmpResult').innerHTML=
+    '<div class="cr-box">'
+    +'<div class="cr-title">Comparação por porção</div>'
+    +barRow(mA.kcal,mB.kcal,maxOf(mA.kcal,mB.kcal),' kcal')
+    +barRow(mA.p,mB.p,maxOf(mA.p,mB.p),'g prot')
+    +barRow(mA.c,mB.c,maxOf(mA.c,mB.c),'g carb')
+    +barRow(mA.f,mB.f,maxOf(mA.f,mB.f),'g gord')
+    +'<div class="cr-legend">'
+    +'<div class="cr-leg-item"><div class="cr-leg-dot" style="background:#C40A00"></div><span>'+selA.n+'</span></div>'
+    +'<div class="cr-leg-item"><div class="cr-leg-dot" style="background:#1a9c5c"></div><span>'+selB.n+'</span></div>'
+    +'</div>'
+    +'<div class="cr-summary '+sumCls+'">'
+    +'<div class="cr-sum-val">'+sumVal+' kcal</div>'
+    +'<div class="cr-sum-lbl">'+sumLbl+'</div>'
+    +'</div>'
+    +'<div class="impact-rows">'
+    +'<div class="impact-row"><span>Economia semanal (1×/dia)</span><b>'+ecoSign+Math.abs(weekly)+' kcal</b></div>'
+    +'<div class="impact-row"><span>Economia mensal (1×/dia)</span><b>'+ecoSign+Math.abs(monthly)+' kcal</b></div>'
+    +'<div class="impact-row"><span>Impacto no peso/mês</span><b>'+pesoSign+Math.abs(kgM)+' kg</b></div>'
+    +'</div></div>';
+}
+
+// SAVE SUB
+function saveSub(){
+  if(!selA||!selB) return;
+  var g1=parseInt(document.getElementById('q1').value)||100;
+  var g2=parseInt(document.getElementById('q2').value)||100;
+  var mA=mac(selA,g1), mB=mac(selB,g2);
+  hist.unshift({
+    id:Date.now(),
+    date:new Date().toLocaleString('pt-BR'),
+    student:localStorage.getItem('rf_student_name')||'',
+    fA:{n:selA.n,e:selA.e,g:g1,kcal:mA.kcal},
+    fB:{n:selB.n,e:selB.e,g:g2,kcal:mB.kcal},
+    diff:Math.round((mB.kcal-mA.kcal)*10)/10
+  });
+  localStorage.setItem('rf_hist',JSON.stringify(hist));
+  showToast('✅ Substituição salva!');
+}
+function clearSub(){
+  selA=null; selB=null;
+  document.getElementById('sb1').style.display='';
+  document.getElementById('cats1').style.display='';
+  document.getElementById('s1').value=''; q1Str=''; catF1=''; q2Str=''; catF2='';
+  document.getElementById('qb1').style.display='none';
+  document.getElementById('swDiv').style.display='none';
+  document.getElementById('step2').style.display='none';
+  document.getElementById('cmpWrap').style.display='none';
+  document.getElementById('list1').innerHTML='';
+  buildCats('cats1');
+  renderList1();
+}
+
+// DAILY LOG
+function onSLog(){
+  sLogStr=document.getElementById('sLog').value;
+  showAllLog=false;
+  if(selLog){selLog=null;document.getElementById('qbLog').style.display='none';}
+  renderListLog();
+}
+function renderListLog(){
+  if(selLog) return;
+  var el=document.getElementById('listLog');
+  if(!sLogStr){el.innerHTML='';return;}
+  var res=searchTACO(sLogStr,'');
+  if(!res.length){el.innerHTML='<div class="empty"><div class="empty-icon">🔍</div><p>Nenhum resultado</p></div>';return;}
+  var shown=showAllLog?res:res.slice(0,8);
+  var html='';
+  for(var i=0;i<shown.length;i++) html+=cardHTML(shown[i],TACO.indexOf(shown[i]),'pickLog');
+  if(!showAllLog&&res.length>8) html+='<button class="more-btn" onclick="showAllLog=true;renderListLog()">Ver mais '+(res.length-8)+' ↓</button>';
+  el.innerHTML=html;
+}
+function pickLog(i){
+  selLog=TACO[i];
+  document.getElementById('listLog').innerHTML='';
+  document.getElementById('sLog').value=selLog.n;
+  document.getElementById('qbLog').style.display='';
+  calcQLog();
+}
+function calcQLog(){
+  if(!selLog) return;
+  var g=parseInt(document.getElementById('qLog').value)||100;
+  document.getElementById('qkLog').textContent=mac(selLog,g).kcal;
+}
+function addLog(){
+  if(!selLog) return;
+  var g=parseInt(document.getElementById('qLog').value)||100;
+  var m=mac(selLog,g);
+  dailyLog.push({
+    id:Date.now(),
+    food:selLog,
+    g:g,
+    m:m,
+    time:new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})
+  });
+  localStorage.setItem('rf_log_'+TODAY,JSON.stringify(dailyLog));
+  selLog=null;
+  document.getElementById('qbLog').style.display='none';
+  document.getElementById('sLog').value=''; sLogStr='';
+  renderListLog();
+  renderLog();
+  showToast('✅ Adicionado!');
+}
+function removeLog(id){
+  dailyLog=dailyLog.filter(function(i){return i.id!==id;});
+  localStorage.setItem('rf_log_'+TODAY,JSON.stringify(dailyLog));
+  renderLog();
+}
+function clearLog(){
+  if(!confirm('Limpar o diário de hoje?')) return;
+  dailyLog=[];
+  localStorage.setItem('rf_log_'+TODAY,'[]');
+  renderLog();
+}
+function onGoalChange(){
+  dailyGoal=parseInt(document.getElementById('dgInput').value)||0;
+  localStorage.setItem('rf_daily_goal',dailyGoal);
+  renderLog();
+}
+function renderLog(){
+  var tot={k:0,p:0,c:0,f:0};
+  for(var i=0;i<dailyLog.length;i++){
+    tot.k+=dailyLog[i].m.kcal;
+    tot.p+=dailyLog[i].m.p;
+    tot.c+=dailyLog[i].m.c;
+    tot.f+=dailyLog[i].m.f;
+  }
+  var el=document.getElementById('logList');
+  var tb=document.getElementById('totBar');
+  if(!dailyLog.length){
+    tb.style.display='none';
+    el.innerHTML='<div class="empty"><div class="empty-icon">📋</div><p>Nenhum alimento registrado hoje</p></div>';
+    return;
+  }
+  tb.style.display='';
+  document.getElementById('tbKcal').textContent=Math.round(tot.k);
+  document.getElementById('tbP').textContent=Math.round(tot.p)+'g';
+  document.getElementById('tbC').textContent=Math.round(tot.c)+'g';
+  document.getElementById('tbF').textContent=Math.round(tot.f)+'g';
+  var ps=document.getElementById('progSection');
+  if(dailyGoal){
+    ps.style.display='';
+    var pct=Math.min(Math.round(tot.k/dailyGoal*100),150);
+    var over=tot.k>dailyGoal;
+    document.getElementById('progFill').style.width=pct+'%';
+    document.getElementById('progFill').className='prog-fill'+(over?' over':'');
+    document.getElementById('progLbl').textContent=over
+      ?'⚠ Meta excedida em '+Math.round(tot.k-dailyGoal)+' kcal'
+      :'Faltam '+Math.round(dailyGoal-tot.k)+' kcal';
+    document.getElementById('progGoalLbl').textContent='Meta: '+dailyGoal+' kcal';
+  } else {
+    ps.style.display='none';
+  }
+  var html='';
+  for(var j=0;j<dailyLog.length;j++){
+    var item=dailyLog[j];
+    html+='<div class="log-item">'
+      +'<div class="li-emoji">'+item.food.e+'</div>'
+      +'<div class="li-body">'
+      +'<div class="li-name">'+item.food.n+'</div>'
+      +'<div class="li-sub">'+item.g+'g · '+item.time+'</div>'
+      +'</div>'
+      +'<div class="li-kcal">'+item.m.kcal+'<small>kcal</small></div>'
+      +'<button class="li-rm" onclick="removeLog('+item.id+')">×</button>'
+      +'</div>';
+  }
+  el.innerHTML=html;
+}
+
+// PLANNER
+function calcPlan(){
+  var w=parseFloat(document.getElementById('pW').value);
+  var h=parseFloat(document.getElementById('pH').value);
+  var age=parseFloat(document.getElementById('pA').value);
+  var sex=document.getElementById('pS').value;
+  var act=parseFloat(document.getElementById('pAct').value);
+  var obj=document.getElementById('pObj').value;
+  var target=parseFloat(document.getElementById('pT').value)||null;
+  var wk=parseFloat(document.getElementById('pWk').value)||null;
+  if(!w||!h||!age){showToast('Preencha peso, altura e idade');return;}
+  var tmb=sex==='f'?655.1+9.563*w+1.850*h-4.676*age:66.47+13.75*w+5.003*h-6.755*age;
+  var tdee=Math.round(tmb*act);
+  var defMap={lose_fast:-1100,lose_mod:-550,lose_slow:-275,maintain:0,gain:300};
+  var def=defMap[obj]||0;
+  var meta=Math.max(1200,tdee+def);
+  var kgWk=Math.round(Math.abs(def)/7700*100)/100;
+  var imc=Math.round(w/Math.pow(h/100,2)*10)/10;
+  var imcLbl=imc<18.5?'Abaixo do peso':imc<25?'Normal ✓':imc<30?'Sobrepeso':'Obesidade';
+  var protG=Math.round(w*1.8);
+  var gordG=Math.round(meta*0.25/9);
+  var carbG=Math.max(0,Math.round((meta-protG*4-gordG*9)/4));
+  var toTarget=target&&w&&kgWk>0?Math.ceil(Math.abs(w-target)/kgWk):null;
+  var proj=wk&&kgWk>0?Math.round(kgWk*wk*10)/10:null;
+  var defColor=def<0?'#0a8a3c':'#C40A00';
+  var html='<div class="plan-result">'
+    +'<div class="pr-title">📊 Plano personalizado</div>'
+    +'<div class="plan-stat"><span class="ps-lbl">IMC atual</span><span class="ps-val">'+imc+' — '+imcLbl+'</span></div>'
+    +'<div class="plan-stat"><span class="ps-lbl">Metabolismo basal (TMB)</span><span class="ps-val">'+Math.round(tmb)+' kcal/dia</span></div>'
+    +'<div class="plan-stat"><span class="ps-lbl">Gasto total (TDEE)</span><span class="ps-val">'+tdee+' kcal/dia</span></div>'
+    +'<div class="plan-stat"><span class="ps-lbl">🎯 Meta calórica</span><span class="ps-val brand">'+meta+' kcal/dia</span></div>';
+  if(def!==0) html+='<div class="plan-stat"><span class="ps-lbl">Déficit/superávit</span><span class="ps-val" style="color:'+defColor+'">'+(def>0?'+':'')+def+' kcal/dia</span></div>';
+  if(kgWk>0) html+='<div class="plan-stat"><span class="ps-lbl">Perda estimada/semana</span><span class="ps-val">'+kgWk+' kg</span></div>';
+  if(proj) html+='<div class="plan-stat"><span class="ps-lbl">Em '+wk+' semanas</span><span class="ps-val">≈ −'+proj+' kg</span></div>';
+  if(toTarget) html+='<div class="plan-stat"><span class="ps-lbl">Alcançar '+target+' kg</span><span class="ps-val">≈ '+toTarget+' semanas</span></div>';
+  html+='<div style="margin-top:10px;margin-bottom:6px;font-size:11px;font-weight:600;color:var(--text4);text-transform:uppercase;letter-spacing:.07em">Macros sugeridos/dia</div>'
+    +'<div class="macro-chips">'
+    +'<div class="mchip"><div class="mchip-val" style="color:#C40A00">'+protG+'g</div><div class="mchip-lbl">Proteína</div></div>'
+    +'<div class="mchip"><div class="mchip-val" style="color:#1a6abf">'+carbG+'g</div><div class="mchip-lbl">Carboidrato</div></div>'
+    +'<div class="mchip"><div class="mchip-val" style="color:#8a5c00">'+gordG+'g</div><div class="mchip-lbl">Gordura</div></div>'
+    +'</div>'
+    +'<div class="plan-tip">💡 Use a aba <b>Substituições</b> para ver como cada troca alimentar impacta essa meta.</div>'
+    +'</div>';
+  document.getElementById('planRes').innerHTML=html;
+  document.getElementById('dgInput').value=meta;
+  dailyGoal=meta;
+  localStorage.setItem('rf_daily_goal',meta);
+  renderLog();
+  showToast('🎯 Meta de '+meta+' kcal/dia definida!');
+}
+
+// HISTORY
+function renderHist(){
+  var el=document.getElementById('histList');
+  if(!hist.length){
+    el.innerHTML='<div class="empty"><div class="empty-icon">🕑</div><p>Nenhuma substituição salva ainda</p></div>';
+    return;
+  }
+  var html='';
+  for(var i=0;i<hist.length;i++){
+    var h=hist[i];
+    var d=h.diff;
+    var cls=d<0?'save':d>0?'over':'same';
+    var lbl=d<0?'−'+Math.abs(d)+' kcal economizadas':d>0?'+'+d+' kcal a mais':'Sem diferença calórica';
+    html+='<div class="hcard">'
+      +'<div class="hcard-top">'
+      +(h.student?'<span class="hstudent">👤 '+h.student+'</span>':'')
+      +'<span class="hdate">'+h.date+'</span>'
+      +'</div>'
+      +'<div class="hfood-row"><div class="hfood-emoji">'+h.fA.e+'</div>'
+      +'<div class="hfood-info"><div class="hfood-name">'+h.fA.n+'</div>'
+      +'<div class="hfood-meta">'+h.fA.g+'g · '+h.fA.kcal+' kcal</div></div></div>'
+      +'<div class="harrow">↓ substituído por</div>'
+      +'<div class="hfood-row"><div class="hfood-emoji">'+h.fB.e+'</div>'
+      +'<div class="hfood-info"><div class="hfood-name">'+h.fB.n+'</div>'
+      +'<div class="hfood-meta">'+h.fB.g+'g · '+h.fB.kcal+' kcal</div></div></div>'
+      +'<div class="hcard-foot">'
+      +'<span class="hdiff '+cls+'">'+lbl+'</span>'
+      +'<button class="hdel" onclick="delHist('+h.id+')">🗑 Excluir</button>'
+      +'</div></div>';
+  }
+  el.innerHTML=html;
+}
+function delHist(id){
+  hist=hist.filter(function(h){return h.id!==id;});
+  localStorage.setItem('rf_hist',JSON.stringify(hist));
+  renderHist();
+}
+function clearHist(){
+  if(!confirm('Apagar todo o histórico?')) return;
+  hist=[];
+  localStorage.setItem('rf_hist','[]');
+  renderHist();
+}
+
+</script>
+</body>
+</html>
