@@ -215,6 +215,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .mchip-lbl{font-size:10px;color:var(--text4);margin-top:2px}
 .plan-tip{background:#fff8f8;border:1px solid #f0c0c0;border-radius:10px;padding:10px 13px;margin-top:10px;font-size:12px;color:#8a0000;line-height:1.5}
 [data-theme="dark"] .plan-tip{background:#2d1515;border-color:#7a2020;color:#ff9090}
+.ps-range{font-size:13px;color:var(--text2);font-weight:600}
+.plan-disclaimer{display:flex;align-items:flex-start;gap:8px;background:var(--bg2);border-radius:10px;padding:10px 13px;margin-top:4px;font-size:11.5px;color:var(--text3);line-height:1.6}
+[data-theme="dark"] .plan-disclaimer{background:#1a1a1a;color:#777}
+.pd-icon{font-size:16px;flex-shrink:0;margin-top:1px;color:var(--text4)}
 .hcard{background:var(--bg);border:1px solid var(--border2);border-radius:var(--r);padding:12px 14px;margin-bottom:8px}
 [data-theme="dark"] .hcard{background:#1e1e1e;border-color:#2e2e2e}
 .hcard-top{display:flex;align-items:center;gap:6px;margin-bottom:8px}
@@ -1486,31 +1490,48 @@ function calcPlan(){
   var defMap={lose_fast:-1100,lose_mod:-550,lose_slow:-275,maintain:0,gain:300};
   var def=defMap[obj]||0;
   var meta=Math.max(1200,tdee+def);
-  // kg por semana: positivo = ganho, negativo = perda
-  var kgWkRaw=def/7700; // pode ser negativo (perda) ou positivo (ganho)
-  var kgWk=Math.round(Math.abs(kgWkRaw)*100)/100;
   var isGain=obj==='gain';
   var isMaintain=obj==='maintain';
   var imc=Math.round(w/Math.pow(h/100,2)*10)/10;
   var imcLbl=imc<18.5?'Abaixo do peso':imc<25?'Normal ✓':imc<30?'Sobrepeso':'Obesidade';
-  // Proteína maior para ganho de massa
   var protG=isGain?Math.round(w*2.2):Math.round(w*1.8);
   var gordG=Math.round(meta*0.25/9);
   var carbG=Math.max(0,Math.round((meta-protG*4-gordG*9)/4));
-  // "Em X semanas": sinal correto conforme objetivo
-  // Bug fix 2: proj sempre positivo com sinal adequado ao objetivo
-  var proj=wk&&kgWk>0?Math.round(kgWk*wk*10)/10:null;
-  // Bug fix 3: toTarget usa prazo informado pelo usuário diretamente
-  // Se informou prazo (wk), mostra ele. Senão calcula semanas necessárias.
-  var toTarget=null;
-  if(target&&w&&kgWk>0){
-    toTarget=wk?wk:Math.ceil(Math.abs(w-target)/kgWk);
-  }
   var defColor=def<0?'#0a8a3c':'#C40A00';
-  // Labels e sinais contextuais
-  var lblRateWeek=isGain?'Ganho estimado/semana':'Perda estimada/semana';
-  var lblProjSign=isGain?'+':'−';
-  var lblTargetPrefix=isGain?'Alcançar '+target+' kg (ganho)':'Alcançar '+target+' kg';
+
+  // ── Ritmo semanal como FAIXA (±30% da estimativa central)
+  // A variação biológica real gira em torno de 30% para mais ou para menos
+  var kgWkCenter=Math.abs(def)/7700; // valor central em kg/semana
+  var kgWkLow =Math.round(kgWkCenter*0.7*10)/10;  // limite inferior
+  var kgWkHigh=Math.round(kgWkCenter*1.3*10)/10;  // limite superior
+  var rateSign=isGain?'+':'−';
+  var rateRange=rateSign+kgWkLow+' a '+rateSign+kgWkHigh+' kg';
+
+  // ── Projeção em X semanas como FAIXA
+  var projLow =wk?Math.round(kgWkCenter*0.7*wk*10)/10:null;
+  var projHigh=wk?Math.round(kgWkCenter*1.3*wk*10)/10:null;
+  var projRange=projLow!==null?(rateSign+projLow+' a '+rateSign+projHigh+' kg'):null;
+
+  // ── Projeção para peso alvo como FAIXA de semanas
+  var wkLow=null,wkHigh=null;
+  if(target&&w&&kgWkCenter>0){
+    var diff=Math.abs(w-target);
+    if(wk){
+      // usuário informou prazo: mostra o prazo dele + variação de resultado
+      wkLow=wk; wkHigh=wk;
+    } else {
+      // calcula faixa de semanas necessárias
+      wkLow =Math.ceil(diff/(kgWkCenter*1.3));
+      wkHigh=Math.ceil(diff/(kgWkCenter*0.7));
+    }
+  }
+  var targetRange=wkLow!==null?(wkLow===wkHigh?'≈ '+wkLow+' semanas':'entre '+wkLow+' e '+wkHigh+' semanas'):null;
+
+  // ── Labels contextuais por objetivo
+  var lblRate=isGain?'Ritmo esperado/semana':'Ritmo esperado/semana';
+  var lblProj=isGain?'Projeção em '+wk+' semanas':'Projeção em '+wk+' semanas';
+  var lblTarget=isGain?'Projeção para '+target+' kg':'Projeção para '+target+' kg';
+
   var html='<div class="plan-result">'
     +'<div class="pr-title">'+(isGain?'💪':'📊')+' Plano personalizado</div>'
     +'<div class="plan-stat"><span class="ps-lbl">IMC atual</span><span class="ps-val">'+imc+' — '+imcLbl+'</span></div>'
@@ -1518,10 +1539,22 @@ function calcPlan(){
     +'<div class="plan-stat"><span class="ps-lbl">Gasto total (TDEE)</span><span class="ps-val">'+tdee+' kcal/dia</span></div>'
     +'<div class="plan-stat"><span class="ps-lbl">🎯 Meta calórica</span><span class="ps-val brand">'+meta+' kcal/dia</span></div>';
   if(def!==0) html+='<div class="plan-stat"><span class="ps-lbl">'+(isGain?'Superávit calórico':'Déficit calórico')+'</span><span class="ps-val" style="color:'+defColor+'">'+(def>0?'+':'')+def+' kcal/dia</span></div>';
-  if(kgWk>0&&!isMaintain) html+='<div class="plan-stat"><span class="ps-lbl">'+lblRateWeek+'</span><span class="ps-val">'+kgWk+' kg</span></div>';
-  if(proj&&!isMaintain) html+='<div class="plan-stat"><span class="ps-lbl">Em '+wk+' semanas</span><span class="ps-val">≈ '+lblProjSign+proj+' kg</span></div>';
-  if(toTarget&&!isMaintain) html+='<div class="plan-stat"><span class="ps-lbl">'+lblTargetPrefix+'</span><span class="ps-val">≈ '+toTarget+' semanas</span></div>';
-  html+='<div style="margin-top:10px;margin-bottom:6px;font-size:11px;font-weight:600;color:var(--text4);text-transform:uppercase;letter-spacing:.07em">Macros sugeridos/dia</div>'
+  if(!isMaintain&&kgWkCenter>0){
+    html+='<div class="plan-stat"><span class="ps-lbl">'+lblRate+'</span><span class="ps-val ps-range">'+rateRange+'</span></div>';
+  }
+  if(!isMaintain&&projRange){
+    html+='<div class="plan-stat"><span class="ps-lbl">'+lblProj+'</span><span class="ps-val ps-range">'+projRange+'</span></div>';
+  }
+  if(!isMaintain&&targetRange){
+    html+='<div class="plan-stat"><span class="ps-lbl">'+lblTarget+'</span><span class="ps-val ps-range">'+targetRange+'</span></div>';
+  }
+  if(!isMaintain&&kgWkCenter>0){
+    html+='<div class="plan-disclaimer">'
+      +'<span class="pd-icon">～</span>'
+      +'Projeções baseadas em média populacional. Metabolismo adaptativo, retenção hídrica e composição corporal individual podem alterar os resultados reais.'
+      +'</div>';
+  }
+  html+='<div style="margin-top:12px;margin-bottom:6px;font-size:11px;font-weight:600;color:var(--text4);text-transform:uppercase;letter-spacing:.07em">Macros sugeridos/dia</div>'
     +'<div class="macro-chips">'
     +'<div class="mchip"><div class="mchip-val" style="color:#C40A00">'+protG+'g</div><div class="mchip-lbl">Proteína</div></div>'
     +'<div class="mchip"><div class="mchip-val" style="color:#1a6abf">'+carbG+'g</div><div class="mchip-lbl">Carboidrato</div></div>'
